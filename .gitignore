@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+coverage
+*.tsbuildinfo
+*.local
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+
+# Docs internes de session (chemins locaux, infra)
+HANDOFF.md
+.playwright-mcp
+test-results
