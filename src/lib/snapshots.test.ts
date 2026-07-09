@@ -33,6 +33,7 @@ function makeAnswers(over: Partial<Answers> = {}): Answers {
     mcpServers: [],
     toolRules: [],
     ruleOptions: {},
+    rulesAsSkills: false,
     memoryNote: "",
     advanced: {
       model: "",
