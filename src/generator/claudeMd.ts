@@ -338,10 +338,13 @@ export function generateRuleFile(ruleId: RuleId, a: Answers): string {
 export function generateSkillFile(ruleId: RuleId, a: Answers): string {
   const rule = ruleById(ruleId);
   const fr = a.language === "fr";
+  // description = "quoi" (summary) + "quand" (skillTrigger) : la doc officielle indique que
+  // Claude decide du chargement a partir de la description ; sans "quand", l'auto-load est faible.
+  const trigger = rule.skillTrigger ? ` ${pick(rule.skillTrigger, a.language)}` : "";
   const front = [
     "---",
     `name: ${pick(rule.title, a.language)}`,
-    `description: ${pick(rule.summary, a.language)}`,
+    `description: ${pick(rule.summary, a.language)}${trigger}`,
     "---",
   ];
   const body = renderRuleInline(rule, a).replace(/^### /, "## ");

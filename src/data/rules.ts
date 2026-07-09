@@ -22,6 +22,12 @@ export interface RuleModule {
    * skill quand `Answers.rulesAsSkills` est vrai. Les core0 ne sont JAMAIS skillables (invariant).
    */
   skillable?: boolean;
+  /**
+   * Déclencheur du skill (règles skillable uniquement) : le "quand" ajouté en suffixe de la
+   * description du SKILL.md. Doc officielle : la description sert à Claude pour décider QUAND
+   * charger le skill ; un "quoi" seul rend l'auto-chargement faible.
+   */
+  skillTrigger?: Localized;
 }
 
 export const RULE_MODULES: readonly RuleModule[] = [
@@ -169,6 +175,10 @@ export const RULE_MODULES: readonly RuleModule[] = [
     id: "memory-hygiene",
     core0: false,
     skillable: true,
+    skillTrigger: {
+      fr: "À utiliser au moment d'écrire ou de mettre à jour un fichier mémoire.",
+      en: "Use when writing or updating a memory file.",
+    },
     kind: "core",
     label: { fr: "Hygiène des fichiers mémoire", en: "Memory file hygiene" },
     summary: {
@@ -223,6 +233,10 @@ export const RULE_MODULES: readonly RuleModule[] = [
     id: "research-before-code",
     core0: false,
     skillable: true,
+    skillTrigger: {
+      fr: "À utiliser avant d'écrire du code qui touche une API de librairie ou de framework versionné.",
+      en: "Use before writing code that touches a versioned library or framework API.",
+    },
     kind: "core",
     label: { fr: "Recherche avant code", en: "Research before code" },
     summary: {
@@ -396,6 +410,10 @@ export const RULE_MODULES: readonly RuleModule[] = [
     id: "audit-readonly",
     core0: false,
     skillable: true,
+    skillTrigger: {
+      fr: "À utiliser au démarrage d'une mission d'audit ou de revue en lecture seule.",
+      en: "Use when starting a read-only audit or review engagement.",
+    },
     kind: "core",
     label: { fr: "Posture audit (lecture seule)", en: "Audit posture (read-only)" },
     summary: {
