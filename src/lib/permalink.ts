@@ -28,10 +28,15 @@ function base64UrlToBytes(value: string): Uint8Array {
 }
 
 async function pipeThrough(input: Uint8Array, stream: GenericTransformStream): Promise<Uint8Array> {
+  // Lecture et ecriture CONCURRENTES obligatoirement : dans Chromium, close() attend
+  // le drainage du cote lisible (backpressure), donc un write -> close -> read
+  // sequentiel se bloque sans erreur (verifie en prod 2026-07-09). L'environnement
+  // Node des tests unitaires ne reproduit pas ce deadlock : seul un navigateur reel
+  // l'exerce (spec e2e permalink.spec.ts).
   const writer = stream.writable.getWriter();
-  await writer.write(input);
-  await writer.close();
+  const writeDone = writer.write(input).then(() => writer.close());
   const buffer = await new Response(stream.readable).arrayBuffer();
+  await writeDone;
   return new Uint8Array(buffer);
 }
 
