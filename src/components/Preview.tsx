@@ -4,6 +4,7 @@ import { pick } from "../types";
 import { CHROME } from "../i18n/chrome";
 import { Badge, cn } from "./primitives";
 import { DownloadButton } from "./DownloadButton";
+import { GeneratorError } from "./GeneratorError";
 
 function fileKindBadge(kind: GeneratedFile["lang"]): string {
   return kind === "json" ? "json" : kind === "bash" ? "sh" : kind === "markdown" ? "md" : "txt";
@@ -13,10 +14,12 @@ export function Preview({
   files,
   projectName,
   lang,
+  error,
 }: {
   files: GeneratedFile[];
   projectName: string;
   lang: Language;
+  error: Error | null;
 }) {
   const [selectedPath, setSelectedPath] = useState<string>(files[0]?.path ?? "");
 
@@ -44,11 +47,21 @@ export function Preview({
             </>
           )}
         </div>
-        <DownloadButton files={files} projectName={projectName} lang={lang} />
+        <DownloadButton
+          files={files}
+          projectName={projectName}
+          lang={lang}
+          disabled={error !== null}
+        />
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,11rem)_1fr]">
-        <nav className="overflow-y-auto border-r border-ink-700 py-2">
+      {error ? (
+        <div className="min-h-0 flex-1 overflow-auto p-4">
+          <GeneratorError error={error} lang={lang} />
+        </div>
+      ) : (
+        <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,11rem)_1fr]">
+          <nav className="overflow-y-auto border-r border-ink-700 py-2">
           {files.map((f) => (
             <button
               key={f.path}
@@ -67,12 +80,13 @@ export function Preview({
           ))}
         </nav>
 
-        <div className="min-w-0 overflow-auto">
-          <pre className="whitespace-pre p-4 font-mono text-[12px] leading-relaxed text-ink-200">
-            {current?.content ?? ""}
-          </pre>
+          <div className="min-w-0 overflow-auto">
+            <pre className="whitespace-pre p-4 font-mono text-[12px] leading-relaxed text-ink-200">
+              {current?.content ?? ""}
+            </pre>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

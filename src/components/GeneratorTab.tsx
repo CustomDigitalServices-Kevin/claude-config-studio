@@ -1,9 +1,10 @@
 import { useMemo, useState, type ComponentType, type Dispatch, type SetStateAction } from "react";
-import type { Answers, Language, Localized } from "../types";
+import type { Answers, GeneratedFile, Language, Localized } from "../types";
 import { pick } from "../types";
 import { CHROME } from "../i18n/chrome";
 import { buildConfig } from "../generator/buildConfig";
 import { DownloadButton } from "./DownloadButton";
+import { GeneratorError } from "./GeneratorError";
 import { Card } from "./primitives";
 import { Preview } from "./Preview";
 import { SectionNav, type NavItem } from "./SectionNav";
@@ -64,11 +65,12 @@ export function GeneratorTab({
 }) {
   const [activeSection, setActiveSection] = useState<SectionId>("identity");
 
-  const files = useMemo(() => {
+  const { files, error } = useMemo<{ files: GeneratedFile[]; error: Error | null }>(() => {
     try {
-      return buildConfig(answers);
-    } catch {
-      return [];
+      return { files: buildConfig(answers), error: null };
+    } catch (err) {
+      console.error("[buildConfig] generation du .claude echouee", err);
+      return { files: [], error: err instanceof Error ? err : new Error(String(err)) };
     }
   }, [answers]);
 
@@ -102,8 +104,18 @@ export function GeneratorTab({
           <span className="text-xs text-ink-400">
             {files.length} {pick(CHROME.preview.files, lang)}
           </span>
-          <DownloadButton files={files} projectName={answers.projectName} lang={lang} />
+          <DownloadButton
+            files={files}
+            projectName={answers.projectName}
+            lang={lang}
+            disabled={error !== null}
+          />
         </div>
+        {error && (
+          <div className="mb-4 lg:hidden">
+            <GeneratorError error={error} lang={lang} />
+          </div>
+        )}
 
         <SectionShell
           index={activeIndex + 1}
@@ -117,7 +129,7 @@ export function GeneratorTab({
       {/* Preview */}
       <div className="hidden min-h-0 border-l border-ink-700 bg-ink-900 lg:block">
         <Card className="m-0 h-full rounded-none border-0">
-          <Preview files={files} projectName={answers.projectName} lang={lang} />
+          <Preview files={files} projectName={answers.projectName} lang={lang} error={error} />
         </Card>
       </div>
     </div>
