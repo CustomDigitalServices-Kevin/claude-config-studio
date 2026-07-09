@@ -2,9 +2,8 @@ import { useState } from "react";
 import type { GeneratedFile, Language } from "../types";
 import { pick } from "../types";
 import { CHROME } from "../i18n/chrome";
-import { downloadZip } from "../lib/zip";
-import { slugify } from "../generator/text";
 import { Badge, cn } from "./primitives";
+import { DownloadButton } from "./DownloadButton";
 
 function fileKindBadge(kind: GeneratedFile["lang"]): string {
   return kind === "json" ? "json" : kind === "bash" ? "sh" : kind === "markdown" ? "md" : "txt";
@@ -20,7 +19,6 @@ export function Preview({
   lang: Language;
 }) {
   const [selectedPath, setSelectedPath] = useState<string>(files[0]?.path ?? "");
-  const [building, setBuilding] = useState(false);
 
   // selection derivee : si le fichier choisi a disparu de la liste, retomber sur le premier
   // (derive plutot que synchronise par effet : evite les rendus en cascade, regle react-hooks)
@@ -31,15 +29,6 @@ export function Preview({
   const current = files.find((f) => f.path === selected) ?? files[0];
   const claudeMd = files.find((f) => f.path.endsWith("CLAUDE.md"));
   const mdLines = claudeMd ? claudeMd.content.split("\n").length : 0;
-
-  async function onDownload() {
-    setBuilding(true);
-    try {
-      await downloadZip(files, `${slugify(projectName)}-claude-config.zip`);
-    } finally {
-      setBuilding(false);
-    }
-  }
 
   return (
     <div className="flex h-full flex-col">
@@ -55,14 +44,7 @@ export function Preview({
             </>
           )}
         </div>
-        <button
-          type="button"
-          onClick={onDownload}
-          disabled={building || files.length === 0}
-          className="rounded-lg bg-clay-500 px-4 py-2 text-sm font-semibold text-ink-950 transition hover:bg-clay-400 disabled:opacity-50"
-        >
-          {building ? pick(CHROME.preview.generating, lang) : pick(CHROME.preview.download, lang)}
-        </button>
+        <DownloadButton files={files} projectName={projectName} lang={lang} />
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,11rem)_1fr]">

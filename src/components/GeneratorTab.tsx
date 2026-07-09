@@ -3,6 +3,7 @@ import type { Answers, Language, Localized } from "../types";
 import { pick } from "../types";
 import { CHROME } from "../i18n/chrome";
 import { buildConfig } from "../generator/buildConfig";
+import { DownloadButton } from "./DownloadButton";
 import { Card } from "./primitives";
 import { Preview } from "./Preview";
 import { SectionNav, type NavItem } from "./SectionNav";
@@ -95,6 +96,15 @@ export function GeneratorTab({
 
       {/* Section active */}
       <div className="min-h-0 overflow-y-auto px-5 py-6">
+        {/* Barre compacte de telechargement, visible seulement sous lg (la colonne preview
+            desktop est masquee en dessous de 1024px, donc le bouton du preview y est inaccessible). */}
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-ink-700 bg-ink-900 px-4 py-3 lg:hidden">
+          <span className="text-xs text-ink-400">
+            {files.length} {pick(CHROME.preview.files, lang)}
+          </span>
+          <DownloadButton files={files} projectName={answers.projectName} lang={lang} />
+        </div>
+
         <SectionShell
           index={activeIndex + 1}
           title={pick(active.title, lang)}
