@@ -183,6 +183,62 @@ describe("buildConfig — settings garde-fous", () => {
   });
 });
 
+describe("buildConfig — deny durci (variantes contournables)", () => {
+  it("le deny inclut les variantes compactes curl|bash et wget", () => {
+    const files = buildConfig(makeAnswers());
+    const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
+      permissions?: { deny?: string[] };
+    };
+    const deny = settings.permissions?.deny ?? [];
+    for (const p of [
+      "Bash(curl *|bash)",
+      "Bash(curl *|sh)",
+      "Bash(wget -O- *)",
+      "Bash(wget *|bash)",
+      "Bash(wget *|sh)",
+    ]) {
+      expect(deny, `variante manquante: ${p}`).toContain(p);
+    }
+  });
+});
+
+describe("buildConfig — settings v2 (fallbackModel / language / attribution)", () => {
+  it("emet les cles v2 reglees et reste conforme au schema", () => {
+    const files = buildConfig(
+      makeAnswers({
+        advanced: {
+          model: "",
+          autoMemory: true,
+          outputStyle: "",
+          permissionMode: "",
+          fallbackModel: "sonnet",
+          responseLanguage: "french",
+          attribution: "none",
+        },
+      }),
+    );
+    const parsed = JSON.parse(settingsFiles(files)[0]!.content) as {
+      fallbackModel?: string[];
+      language?: string;
+      attribution?: { commit?: string; pr?: string };
+    };
+    expect(parsed.fallbackModel).toEqual(["sonnet"]);
+    expect(parsed.language).toBe("french");
+    expect(parsed.attribution).toEqual({ commit: "", pr: "" });
+    expect(settingsSchema.safeParse(parsed).success).toBe(true);
+  });
+
+  it("defauts : aucune cle v2 ecrite (settings minimal)", () => {
+    const parsed = JSON.parse(settingsFiles(buildConfig(makeAnswers()))[0]!.content) as Record<
+      string,
+      unknown
+    >;
+    expect("fallbackModel" in parsed).toBe(false);
+    expect("language" in parsed).toBe(false);
+    expect("attribution" in parsed).toBe(false);
+  });
+});
+
 describe("buildConfig — multi-profils", () => {
   it("union des regles et des deny pour dev + audit", () => {
     const rules = defaultRulesForProfile("dev").concat(defaultRulesForProfile("audit"));
