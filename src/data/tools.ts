@@ -63,6 +63,7 @@ export const TOOL_CATEGORIES: ReadonlyArray<{ id: ToolCategoryId; label: Localiz
 export const COMPANION_TOOLS: readonly CompanionTool[] = [
   {
     id: "obsidian",
+    verifiedAt: "2026-07-09",
     name: "Obsidian",
     category: "knowledge",
     connectKind: "filesystem",
@@ -139,6 +140,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "notebooklm",
+    verifiedAt: "2026-07-09",
     name: "NotebookLM (Google)",
     category: "knowledge",
     connectKind: "manual",
@@ -178,6 +180,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "claude-squad",
+    verifiedAt: "2026-07-09",
     name: "claude-squad",
     category: "orchestration",
     connectKind: "cli",
@@ -210,6 +213,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "superclaude",
+    verifiedAt: "2026-07-09",
     name: "SuperClaude framework",
     category: "orchestration",
     connectKind: "filesystem",
@@ -242,6 +246,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "task-master",
+    verifiedAt: "2026-07-09",
     name: "task-master-ai",
     category: "spec",
     connectKind: "cli",
@@ -301,6 +306,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "spec-kit",
+    verifiedAt: "2026-07-09",
     name: "GitHub Spec Kit",
     category: "spec",
     connectKind: "cli",
@@ -340,6 +346,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "claude-code-templates",
+    verifiedAt: "2026-07-09",
     name: "claude-code-templates (aitmpl)",
     category: "spec",
     connectKind: "cli",
@@ -372,6 +379,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "repomix",
+    verifiedAt: "2026-07-09",
     name: "repomix",
     category: "repo",
     connectKind: "cli",
@@ -411,6 +419,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "ccusage",
+    verifiedAt: "2026-07-09",
     name: "ccusage",
     category: "cost",
     connectKind: "cli",

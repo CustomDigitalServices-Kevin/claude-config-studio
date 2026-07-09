@@ -70,6 +70,7 @@ const CCT_REPO = "https://github.com/davila7/claude-code-templates";
 export const SKILL_ENTRIES: readonly SkillEntry[] = [
   {
     id: "document-skills",
+    verifiedAt: "2026-07-09",
     name: "document-skills",
     category: "document",
     method: "marketplace",
@@ -87,6 +88,7 @@ export const SKILL_ENTRIES: readonly SkillEntry[] = [
   },
   {
     id: "claude-api",
+    verifiedAt: "2026-07-09",
     name: "claude-api",
     category: "api",
     method: "marketplace",
@@ -104,6 +106,7 @@ export const SKILL_ENTRIES: readonly SkillEntry[] = [
   },
   {
     id: "example-skills",
+    verifiedAt: "2026-07-09",
     name: "example-skills",
     category: "creative",
     method: "marketplace",
@@ -121,6 +124,7 @@ export const SKILL_ENTRIES: readonly SkillEntry[] = [
   },
   {
     id: "data",
+    verifiedAt: "2026-07-09",
     name: "data",
     category: "data",
     method: "marketplace",
@@ -138,6 +142,7 @@ export const SKILL_ENTRIES: readonly SkillEntry[] = [
   },
   {
     id: "finance",
+    verifiedAt: "2026-07-09",
     name: "finance",
     category: "finance",
     method: "marketplace",
@@ -155,6 +160,7 @@ export const SKILL_ENTRIES: readonly SkillEntry[] = [
   },
   {
     id: "product-management",
+    verifiedAt: "2026-07-09",
     name: "product-management",
     category: "product",
     method: "marketplace",
@@ -172,6 +178,7 @@ export const SKILL_ENTRIES: readonly SkillEntry[] = [
   },
   {
     id: "code-reviewer",
+    verifiedAt: "2026-07-09",
     name: "code-reviewer",
     category: "dev-workflow",
     method: "cct-cli",
@@ -188,6 +195,7 @@ export const SKILL_ENTRIES: readonly SkillEntry[] = [
   },
   {
     id: "senior-security",
+    verifiedAt: "2026-07-09",
     name: "senior-security",
     category: "security",
     method: "cct-cli",
@@ -204,6 +212,7 @@ export const SKILL_ENTRIES: readonly SkillEntry[] = [
   },
   {
     id: "react-best-practices",
+    verifiedAt: "2026-07-09",
     name: "react-best-practices",
     category: "frontend",
     method: "cct-cli",
@@ -220,6 +229,7 @@ export const SKILL_ENTRIES: readonly SkillEntry[] = [
   },
   {
     id: "seo-optimizer",
+    verifiedAt: "2026-07-09",
     name: "seo-optimizer",
     category: "marketing",
     method: "cct-cli",

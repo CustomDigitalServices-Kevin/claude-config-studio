@@ -183,6 +183,62 @@ describe("buildConfig — settings garde-fous", () => {
   });
 });
 
+describe("buildConfig — deny durci (variantes contournables)", () => {
+  it("le deny inclut les variantes compactes curl|bash et wget", () => {
+    const files = buildConfig(makeAnswers());
+    const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
+      permissions?: { deny?: string[] };
+    };
+    const deny = settings.permissions?.deny ?? [];
+    for (const p of [
+      "Bash(curl *|bash)",
+      "Bash(curl *|sh)",
+      "Bash(wget -O- *)",
+      "Bash(wget *|bash)",
+      "Bash(wget *|sh)",
+    ]) {
+      expect(deny, `variante manquante: ${p}`).toContain(p);
+    }
+  });
+});
+
+describe("buildConfig — settings v2 (fallbackModel / language / attribution)", () => {
+  it("emet les cles v2 reglees et reste conforme au schema", () => {
+    const files = buildConfig(
+      makeAnswers({
+        advanced: {
+          model: "",
+          autoMemory: true,
+          outputStyle: "",
+          permissionMode: "",
+          fallbackModel: "sonnet",
+          responseLanguage: "french",
+          attribution: "none",
+        },
+      }),
+    );
+    const parsed = JSON.parse(settingsFiles(files)[0]!.content) as {
+      fallbackModel?: string[];
+      language?: string;
+      attribution?: { commit?: string; pr?: string };
+    };
+    expect(parsed.fallbackModel).toEqual(["sonnet"]);
+    expect(parsed.language).toBe("french");
+    expect(parsed.attribution).toEqual({ commit: "", pr: "" });
+    expect(settingsSchema.safeParse(parsed).success).toBe(true);
+  });
+
+  it("defauts : aucune cle v2 ecrite (settings minimal)", () => {
+    const parsed = JSON.parse(settingsFiles(buildConfig(makeAnswers()))[0]!.content) as Record<
+      string,
+      unknown
+    >;
+    expect("fallbackModel" in parsed).toBe(false);
+    expect("language" in parsed).toBe(false);
+    expect("attribution" in parsed).toBe(false);
+  });
+});
+
 describe("buildConfig — multi-profils", () => {
   it("union des regles et des deny pour dev + audit", () => {
     const rules = defaultRulesForProfile("dev").concat(defaultRulesForProfile("audit"));
@@ -281,6 +337,43 @@ describe("buildConfig — outils selectionnes", () => {
     for (const md of claudeMdFiles(files)) {
       expect(md.content.split("\n").length).toBeLessThanOrEqual(MAX_CLAUDE_MD_LINES);
     }
+  });
+});
+
+describe("buildConfig — .mcp.json opt-in", () => {
+  function mcpFile(files: GeneratedFile[]): GeneratedFile | undefined {
+    return files.find((f) => f.path === ".mcp.json");
+  }
+
+  it("emet un .mcp.json au format officiel, filtre l'id inconnu", () => {
+    const files = buildConfig(
+      makeAnswers({ mcpServers: ["github", "context7", "totally-unknown-id"] }),
+    );
+    const mcp = mcpFile(files);
+    expect(mcp).toBeDefined();
+    const parsed = JSON.parse(mcp!.content) as { mcpServers: Record<string, unknown> };
+    expect(Object.keys(parsed.mcpServers).sort()).toEqual(["context7", "github"]);
+    expect(parsed.mcpServers.github).toEqual({
+      type: "http",
+      url: "https://api.githubcopilot.com/mcp/",
+    });
+  });
+
+  it("filtre les serveurs sans mcpJson (archivés)", () => {
+    // sqlite a un mcpJson vide -> ignoré ; github valide -> gardé
+    const files = buildConfig(makeAnswers({ mcpServers: ["sqlite", "github"] }));
+    const parsed = JSON.parse(mcpFile(files)!.content) as { mcpServers: Record<string, unknown> };
+    expect(Object.keys(parsed.mcpServers)).toEqual(["github"]);
+  });
+
+  it("aucun .mcp.json quand la sélection MCP est vide", () => {
+    const files = buildConfig(makeAnswers({ mcpServers: [] }));
+    expect(mcpFile(files)).toBeUndefined();
+  });
+
+  it("aucun .mcp.json quand seuls des ids inconnus sont sélectionnés", () => {
+    const files = buildConfig(makeAnswers({ mcpServers: ["nope-1", "nope-2"] }));
+    expect(mcpFile(files)).toBeUndefined();
   });
 });
 
@@ -682,6 +775,40 @@ describe("buildConfig — hooks lifecycle (sourcés)", () => {
     expect(keys).toContain("UserPromptSubmit");
     expect(keys).toContain("SessionEnd");
     expect(keys).toContain("PreCompact");
+    expect(settingsSchema.safeParse(settings).success).toBe(true);
+  });
+});
+
+describe("buildConfig — hook prompt-destructive-guard (type prompt, sans shell)", () => {
+  it("emet un hook PreToolUse/Bash de type prompt, structure exacte + schema conforme", () => {
+    const files = buildConfig(makeAnswers({ hooks: ["prompt-destructive-guard"] }));
+    const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
+      hooks?: Record<string, Array<{ matcher?: string; hooks: Array<Record<string, unknown>> }>>;
+    };
+    const pre = settings.hooks?.["PreToolUse"];
+    expect(pre).toBeDefined();
+    expect(pre!.length).toBe(1);
+    expect(pre![0]!.matcher).toBe("Bash");
+    const hook = pre![0]!.hooks[0]!;
+    expect(hook.type).toBe("prompt");
+    expect(typeof hook.prompt).toBe("string");
+    expect(hook.prompt as string).toContain("$ARGUMENTS");
+    expect(hook).not.toHaveProperty("command");
+    expect(settingsSchema.safeParse(settings).success).toBe(true);
+  });
+
+  it("coexiste avec block-dangerous-bash : deux entrees PreToolUse (command + prompt)", () => {
+    const files = buildConfig(
+      makeAnswers({ hooks: ["block-dangerous-bash", "prompt-destructive-guard"] }),
+    );
+    const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
+      hooks?: Record<string, Array<{ hooks: Array<{ type: string }> }>>;
+    };
+    const pre = settings.hooks?.["PreToolUse"] ?? [];
+    expect(pre.length).toBe(2);
+    const types = pre.map((e) => e.hooks[0]!.type);
+    expect(types).toContain("command");
+    expect(types).toContain("prompt");
     expect(settingsSchema.safeParse(settings).success).toBe(true);
   });
 });

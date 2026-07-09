@@ -73,6 +73,7 @@ export type StackId = (typeof STACK_IDS)[number];
 
 export const HOOK_IDS = [
   "block-dangerous-bash",
+  "prompt-destructive-guard",
   "session-start-reminder",
   "stop-checklist",
   "prompt-guardrail",
@@ -112,7 +113,7 @@ export interface AdvancedSettings {
   outputStyle: "" | "Explanatory" | "Learning";
   /** Mode de permission par defaut ("" = ne pas fixer). Limite aux valeurs sures (jamais bypass/auto/dontAsk). */
   permissionMode: "" | "default" | "acceptEdits" | "plan";
-  /** Modele de repli si le principal est surcharge ("" = aucun). Emis en array : le schema impose maxItems 1. */
+  /** Modele de repli si le principal est surcharge ("" = aucun). Emis en array (schema officiel maxItems 3, schemastore verifie 2026-07-09) ; l'UI n'expose qu'un choix, on emet un seul element. */
   fallbackModel: "" | "opus" | "sonnet" | "haiku";
   /** Langue preferee des reponses de Claude ("" = defaut). Cle settings "language", string libre (ex "french"). */
   responseLanguage: string;
@@ -184,8 +185,8 @@ export const settingsSchema = z.object({
   outputStyle: z.string().optional(),
   /** Memoire automatique inter-sessions. */
   autoMemoryEnabled: z.boolean().optional(),
-  /** Chaine de repli modele. Schema officiel (schemastore, verifie 2026-07-09) : array de strings, maxItems 1. */
-  fallbackModel: z.array(z.string()).max(1).optional(),
+  /** Chaine de repli modele. Schema officiel (schemastore, verifie 2026-07-09) : array de strings, maxItems 3. */
+  fallbackModel: z.array(z.string()).max(3).optional(),
   /** Langue preferee des reponses (schema officiel : string libre, ex "french"). */
   language: z.string().optional(),
   /** Attribution des commits/PRs (schema officiel : objet {commit?, pr?} de strings, additionalProperties false). */
