@@ -13,6 +13,8 @@ export type ToolCategoryId = "knowledge" | "orchestration" | "cost" | "repo" | "
 
 export interface CompanionTool {
   id: string;
+  /** Date ISO (AAAA-MM-JJ) de la derniere verification de la source (audit fraicheur). */
+  verifiedAt?: string;
   name: string;
   category: ToolCategoryId;
   connectKind: ConnectKind;
@@ -49,7 +51,10 @@ export const CONNECT_KIND_LABELS: Record<ConnectKind, Localized> = {
 
 export const TOOL_CATEGORIES: ReadonlyArray<{ id: ToolCategoryId; label: Localized }> = [
   { id: "knowledge", label: { fr: "Connaissances / Mémoire", en: "Knowledge / Memory" } },
-  { id: "orchestration", label: { fr: "Orchestration / Multi-agent", en: "Orchestration / Multi-agent" } },
+  {
+    id: "orchestration",
+    label: { fr: "Orchestration / Multi-agent", en: "Orchestration / Multi-agent" },
+  },
   { id: "spec", label: { fr: "Spec / Planning / Setup", en: "Spec / Planning / Setup" } },
   { id: "repo", label: { fr: "Contexte dépôt", en: "Repo context" } },
   { id: "cost", label: { fr: "Coût / Usage", en: "Cost / Usage" } },
@@ -105,7 +110,10 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
           min: 7,
           max: 180,
           step: 1,
-          label: { fr: "Re-vérifier l'info au-delà de N jours", en: "Re-verify info beyond N days" },
+          label: {
+            fr: "Re-vérifier l'info au-delà de N jours",
+            en: "Re-verify info beyond N days",
+          },
           hint: {
             fr: "Délai après lequel une info du vault sur un sujet à évolution rapide doit être re-vérifiée (recherche web).",
             en: "Delay after which vault info on a fast-moving topic must be re-verified (web search).",

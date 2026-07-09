@@ -34,6 +34,8 @@ export type AgentCategoryId =
 
 export interface AgentEntry {
   id: string;
+  /** Date ISO (AAAA-MM-JJ) de la derniere verification de la source (audit fraicheur). */
+  verifiedAt?: string;
   name: string;
   category: AgentCategoryId;
   method: AgentInstallMethod;
@@ -203,7 +205,8 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
       fr: "Aide à écrire et réviser du IaC Terraform fiable.",
       en: "Helps author and review reliable Terraform IaC.",
     },
-    install: "npx claude-code-templates@latest --agent devops-infrastructure/terraform-specialist --yes",
+    install:
+      "npx claude-code-templates@latest --agent devops-infrastructure/terraform-specialist --yes",
     source: CCT_REPO,
   },
   {
@@ -219,7 +222,8 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
       fr: "Prépare et analyse des tests de charge réalistes.",
       en: "Designs and analyzes realistic load tests.",
     },
-    install: "npx claude-code-templates@latest --agent performance-testing/load-testing-specialist --yes",
+    install:
+      "npx claude-code-templates@latest --agent performance-testing/load-testing-specialist --yes",
     source: CCT_REPO,
   },
   {

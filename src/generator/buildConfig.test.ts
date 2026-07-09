@@ -32,11 +32,24 @@ function makeAnswers(over: Partial<Answers> = {}): Answers {
     tools: [],
     skills: [],
     agents: [],
+    mcpServers: [],
     toolRules: [],
     ruleOptions: {},
     memoryNote: "",
-    advanced: { model: "", autoMemory: true, outputStyle: "", permissionMode: "" },
-    workflow: { defaultBehavior: "act", advisor: { enabled: false, model: "" }, orchestration: false },
+    advanced: {
+      model: "",
+      autoMemory: true,
+      outputStyle: "",
+      permissionMode: "",
+      fallbackModel: "",
+      responseLanguage: "",
+      attribution: "",
+    },
+    workflow: {
+      defaultBehavior: "act",
+      advisor: { enabled: false, model: "" },
+      orchestration: false,
+    },
     ...over,
   };
 }
@@ -85,17 +98,19 @@ describe("buildConfig — conformite par profil", () => {
       // chaque CLAUDE.md sous le plafond
       for (const md of claudeMdFiles(files)) {
         const lines = md.content.split("\n").length;
-        expect(lines, `${md.path} depasse ${MAX_CLAUDE_MD_LINES} lignes (${lines})`).toBeLessThanOrEqual(
-          MAX_CLAUDE_MD_LINES,
-        );
+        expect(
+          lines,
+          `${md.path} depasse ${MAX_CLAUDE_MD_LINES} lignes (${lines})`,
+        ).toBeLessThanOrEqual(MAX_CLAUDE_MD_LINES);
       }
 
       // zero fuite identite (case-insensitive)
       const text = allText(files).toLowerCase();
       for (const token of FORBIDDEN_TOKENS) {
-        expect(text.includes(token.toLowerCase()), `fuite identite "${token}" dans ${profile}`).toBe(
-          false,
-        );
+        expect(
+          text.includes(token.toLowerCase()),
+          `fuite identite "${token}" dans ${profile}`,
+        ).toBe(false);
       }
     });
   }
@@ -156,7 +171,9 @@ describe("buildConfig — settings garde-fous", () => {
   });
 
   it("profil audit : deny git destructifs + directive lecture seule", () => {
-    const files = buildConfig(makeAnswers({ profiles: ["audit"], rules: defaultRulesForProfile("audit") }));
+    const files = buildConfig(
+      makeAnswers({ profiles: ["audit"], rules: defaultRulesForProfile("audit") }),
+    );
     const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
       permissions?: { deny?: string[] };
     };
@@ -305,7 +322,11 @@ describe("buildConfig — profondeur (depth)", () => {
     expect(paths).toContain("web/.claude/CLAUDE.md");
     // projet exemple sous le PREMIER secteur uniquement
     expect(paths).toContain("web/acme/.claude/CLAUDE.md");
-    expect(paths.some((p) => p.startsWith("infra/") && /\/[^/]+\/\.claude/.test(p.slice("infra/".length)))).toBe(false);
+    expect(
+      paths.some(
+        (p) => p.startsWith("infra/") && /\/[^/]+\/\.claude/.test(p.slice("infra/".length)),
+      ),
+    ).toBe(false);
   });
 
   it("edge case : depth n0n1 sans aucun secteur coche emet la racine seule sans planter", () => {
@@ -369,7 +390,9 @@ describe("buildConfig — skills", () => {
     expect(install).toContain("/plugin install document-skills@anthropic-agent-skills");
     expect(install).toContain("/plugin install claude-api@anthropic-agent-skills");
     // cct-cli dans le bloc terminal
-    expect(install).toContain("npx claude-code-templates@latest --skill development/code-reviewer --yes");
+    expect(install).toContain(
+      "npx claude-code-templates@latest --skill development/code-reviewer --yes",
+    );
   });
 
   it("aucun skill : pas de section skills dans INSTALL", () => {
@@ -387,7 +410,11 @@ describe("buildConfig — agents", () => {
     const install = installMd(
       buildConfig(
         makeAnswers({
-          agents: ["wshobson-backend-development", "wshobson-security-scanning", "cct-code-reviewer"],
+          agents: [
+            "wshobson-backend-development",
+            "wshobson-security-scanning",
+            "cct-code-reviewer",
+          ],
         }),
       ),
     );
@@ -428,6 +455,9 @@ describe("buildConfig — settings avances", () => {
           autoMemory: false,
           outputStyle: "Explanatory",
           permissionMode: "plan",
+          fallbackModel: "",
+          responseLanguage: "",
+          attribution: "",
         },
       }),
     );
@@ -552,11 +582,15 @@ describe("buildConfig — hygiene memoire", () => {
   });
 
   it("option datetime : date + heure par defaut, date seule si desactivee", () => {
-    const withTime = claudeMdFiles(buildConfig(makeAnswers({ rules: ["memory-hygiene"] })))[0]!.content;
+    const withTime = claudeMdFiles(buildConfig(makeAnswers({ rules: ["memory-hygiene"] })))[0]!
+      .content;
     expect(withTime).toContain("date + heure");
     const dateOnly = claudeMdFiles(
       buildConfig(
-        makeAnswers({ rules: ["memory-hygiene"], ruleOptions: { "memory-hygiene.datetime": false } }),
+        makeAnswers({
+          rules: ["memory-hygiene"],
+          ruleOptions: { "memory-hygiene.datetime": false },
+        }),
       ),
     )[0]!.content;
     expect(dateOnly).toContain("date seule");
@@ -584,7 +618,8 @@ describe("buildConfig — identite avancee", () => {
   });
 
   it("style de reponses concise injecte une directive de posture, aucun style = rien", () => {
-    const concise = claudeMdFiles(buildConfig(makeAnswers({ responseStyle: "concise" })))[0]!.content;
+    const concise = claudeMdFiles(buildConfig(makeAnswers({ responseStyle: "concise" })))[0]!
+      .content;
     expect(concise).toContain("Style de réponses");
     expect(concise.toLowerCase()).toContain("l'essentiel");
     const none = claudeMdFiles(buildConfig(makeAnswers({ responseStyle: "" })))[0]!.content;
@@ -594,7 +629,9 @@ describe("buildConfig — identite avancee", () => {
 
 describe("buildConfig — green flag parametrable", () => {
   it("defaut : icone coche + nom + token date runtime dans l'en-tete", () => {
-    const md = claudeMdFiles(buildConfig(makeAnswers({ rules: ["green-flag"], author: "Alex" })))[0]!.content;
+    const md = claudeMdFiles(
+      buildConfig(makeAnswers({ rules: ["green-flag"], author: "Alex" })),
+    )[0]!.content;
     expect(md).toContain("✅ Alex - <date du jour au format long> :");
     expect(md).not.toContain("{header}");
   });
@@ -606,7 +643,10 @@ describe("buildConfig — green flag parametrable", () => {
           rules: ["green-flag"],
           author: "Bob",
           projectName: "acme",
-          ruleOptions: { "green-flag.icon": "star", "green-flag.headerText": "{name} sur {project} :" },
+          ruleOptions: {
+            "green-flag.icon": "star",
+            "green-flag.headerText": "{name} sur {project} :",
+          },
         }),
       ),
     )[0]!.content;
@@ -635,7 +675,9 @@ describe("buildConfig — hooks lifecycle (sourcés)", () => {
     const files = buildConfig(
       makeAnswers({ hooks: ["prompt-guardrail", "session-end-reminder", "precompact-note"] }),
     );
-    const settings = JSON.parse(settingsFiles(files)[0]!.content) as { hooks?: Record<string, unknown> };
+    const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
+      hooks?: Record<string, unknown>;
+    };
     const keys = Object.keys(settings.hooks ?? {});
     expect(keys).toContain("UserPromptSubmit");
     expect(keys).toContain("SessionEnd");
@@ -647,16 +689,25 @@ describe("buildConfig — hooks lifecycle (sourcés)", () => {
 describe("buildConfig — workflow (posture + advisor + orchestration)", () => {
   function wf(over: Partial<Answers["workflow"]>): Partial<Answers> {
     return {
-      workflow: { defaultBehavior: "act", advisor: { enabled: false, model: "" }, orchestration: false, ...over },
+      workflow: {
+        defaultBehavior: "act",
+        advisor: { enabled: false, model: "" },
+        orchestration: false,
+        ...over,
+      },
     };
   }
 
   it("directive de posture selon le comportement par defaut", () => {
     const act = claudeMdFiles(buildConfig(makeAnswers(wf({ defaultBehavior: "act" }))))[0]!.content;
     expect(act).toContain("agir directement");
-    const research = claudeMdFiles(buildConfig(makeAnswers(wf({ defaultBehavior: "research" }))))[0]!.content;
+    const research = claudeMdFiles(
+      buildConfig(makeAnswers(wf({ defaultBehavior: "research" }))),
+    )[0]!.content;
     expect(research).toContain("consulter la doc officielle");
-    const brainstorm = claudeMdFiles(buildConfig(makeAnswers(wf({ defaultBehavior: "brainstorm" }))))[0]!.content;
+    const brainstorm = claudeMdFiles(
+      buildConfig(makeAnswers(wf({ defaultBehavior: "brainstorm" }))),
+    )[0]!.content;
     expect(brainstorm).toContain("brainstormer pour qualifier");
   });
 

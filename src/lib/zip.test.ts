@@ -23,11 +23,24 @@ const answers: Answers = {
   tools: [],
   skills: [],
   agents: [],
+  mcpServers: [],
   toolRules: [],
   ruleOptions: {},
   memoryNote: "",
-  advanced: { model: "", autoMemory: true, outputStyle: "", permissionMode: "" },
-  workflow: { defaultBehavior: "act", advisor: { enabled: false, model: "" }, orchestration: false },
+  advanced: {
+    model: "",
+    autoMemory: true,
+    outputStyle: "",
+    permissionMode: "",
+    fallbackModel: "",
+    responseLanguage: "",
+    attribution: "",
+  },
+  workflow: {
+    defaultBehavior: "act",
+    advisor: { enabled: false, model: "" },
+    orchestration: false,
+  },
 };
 
 function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {

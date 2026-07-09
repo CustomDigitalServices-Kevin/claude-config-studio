@@ -26,6 +26,8 @@ export type SkillCategoryId =
 
 export interface SkillEntry {
   id: string;
+  /** Date ISO (AAAA-MM-JJ) de la derniere verification de la source (audit fraicheur). */
+  verifiedAt?: string;
   name: string;
   category: SkillCategoryId;
   method: SkillInstallMethod;

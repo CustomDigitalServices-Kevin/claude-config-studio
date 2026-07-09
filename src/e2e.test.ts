@@ -35,11 +35,24 @@ function makeAnswers(over: Partial<Answers> = {}): Answers {
     tools: [],
     skills: [],
     agents: [],
+    mcpServers: [],
     toolRules: [],
     ruleOptions: {},
     memoryNote: "",
-    advanced: { model: "", autoMemory: true, outputStyle: "", permissionMode: "" },
-    workflow: { defaultBehavior: "act", advisor: { enabled: false, model: "" }, orchestration: false },
+    advanced: {
+      model: "",
+      autoMemory: true,
+      outputStyle: "",
+      permissionMode: "",
+      fallbackModel: "",
+      responseLanguage: "",
+      attribution: "",
+    },
+    workflow: {
+      defaultBehavior: "act",
+      advisor: { enabled: false, model: "" },
+      orchestration: false,
+    },
     ...over,
   };
 }
@@ -83,7 +96,10 @@ const FORBIDDEN_TOKENS = [
 
 /** Invariants transverses valides sur TOUT ZIP produit, quel que soit le scenario. */
 function assertUniversalInvariants(zip: Map<string, string>): void {
-  const everything = [...zip.entries()].map(([p, c]) => `${p}\n${c}`).join("\n").toLowerCase();
+  const everything = [...zip.entries()]
+    .map(([p, c]) => `${p}\n${c}`)
+    .join("\n")
+    .toLowerCase();
 
   // 1. Zero fuite d'identite (de-personnalisation).
   for (const token of FORBIDDEN_TOKENS) {
@@ -167,7 +183,9 @@ describe("E2E — scenario complet (n0n1 + secteurs + skills + agents + outils, 
     // INITIALIZE.md : commandes sourcees + idempotence + auto-suppression finale
     const init = zip.get("INITIALIZE.md") ?? "";
     expect(init).toContain("/plugin install document-skills@anthropic-agent-skills");
-    expect(init).toContain("npx claude-code-templates@latest --agent development-tools/code-reviewer --yes");
+    expect(init).toContain(
+      "npx claude-code-templates@latest --agent development-tools/code-reviewer --yes",
+    );
     expect(init.toLowerCase()).toContain("idempotence");
     expect(init.toLowerCase()).toContain("supprimer ce fichier");
     // reference l'outil coche via TOOLS.md (pas de .mcp.json genere depuis D12)
@@ -183,7 +201,11 @@ describe("E2E — scenario complet (n0n1 + secteurs + skills + agents + outils, 
 describe("E2E — scenario arbre complet (n0n1n2)", () => {
   it("racine + secteurs + projet exemple sous le premier secteur", async () => {
     const zip = await generateZip(
-      makeAnswers({ depth: "n0n1n2", sectors: ["web", "data-ml", "infra"], projectName: "portail" }),
+      makeAnswers({
+        depth: "n0n1n2",
+        sectors: ["web", "data-ml", "infra"],
+        projectName: "portail",
+      }),
     );
     assertUniversalInvariants(zip);
 
@@ -203,7 +225,9 @@ describe("E2E — scenario arbre complet (n0n1n2)", () => {
     assertUniversalInvariants(zip);
     expect(zip.has(".claude/CLAUDE.md")).toBe(true);
     // aucune sous-couche
-    expect([...zip.keys()].some((p) => p.includes("/.claude/") && !p.startsWith(".claude/"))).toBe(false);
+    expect([...zip.keys()].some((p) => p.includes("/.claude/") && !p.startsWith(".claude/"))).toBe(
+      false,
+    );
   });
 });
 

@@ -18,6 +18,8 @@ export type MarketplaceKind = "marketplace" | "list" | "cli" | "aggregator";
 
 export interface Marketplace {
   id: string;
+  /** Date ISO (AAAA-MM-JJ) de la derniere verification de la source (audit fraicheur). */
+  verifiedAt?: string;
   /** Nom du marketplace (= champ "name", utilise dans @<nom> a l'install). */
   name: string;
   kind: MarketplaceKind;
@@ -137,7 +139,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "Génération d'interfaces frontend distinctives et production-grade.",
           en: "Distinctive, production-grade frontend interface generation.",
         },
-        purpose: { fr: "UI de haute qualité, non templatée.", en: "High-quality, non-templated UI." },
+        purpose: {
+          fr: "UI de haute qualité, non templatée.",
+          en: "High-quality, non-templated UI.",
+        },
         whenToUse: {
           fr: "Quand vous voulez une UI frontend soignée, pas générique.",
           en: "When you want polished, non-templated frontend UI.",
@@ -149,7 +154,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "Agents de revue de PR (commentaires, tests, error handling).",
           en: "PR-review agents (comments, tests, error handling).",
         },
-        purpose: { fr: "Revue de pull request multi-agents.", en: "Multi-agent pull-request review." },
+        purpose: {
+          fr: "Revue de pull request multi-agents.",
+          en: "Multi-agent pull-request review.",
+        },
         whenToUse: {
           fr: "Quand vous voulez une revue de PR approfondie automatisée.",
           en: "When you want a thorough automated PR review.",
@@ -198,7 +206,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "Scanne HTML/JSX à la recherche de problèmes d'accessibilité.",
           en: "Scans HTML/JSX for accessibility issues.",
         },
-        purpose: { fr: "Faire remonter les soucis a11y dans le markup.", en: "Surface a11y problems in markup." },
+        purpose: {
+          fr: "Faire remonter les soucis a11y dans le markup.",
+          en: "Surface a11y problems in markup.",
+        },
         whenToUse: {
           fr: "Quand vous voulez trouver des problèmes d'accessibilité dans du HTML/JSX.",
           en: "When you want to find accessibility issues in HTML/JSX.",
@@ -206,7 +217,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
       },
       {
         name: "accessibility-audit",
-        what: { fr: "Génère des rapports de conformité WCAG.", en: "Generates WCAG compliance reports." },
+        what: {
+          fr: "Génère des rapports de conformité WCAG.",
+          en: "Generates WCAG compliance reports.",
+        },
         purpose: { fr: "Produire un audit WCAG.", en: "Produce a WCAG audit." },
         whenToUse: {
           fr: "Quand vous avez besoin d'un rapport de conformité WCAG.",
@@ -215,7 +229,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
       },
       {
         name: "adr-creator",
-        what: { fr: "Crée des Architecture Decision Records.", en: "Creates Architecture Decision Records." },
+        what: {
+          fr: "Crée des Architecture Decision Records.",
+          en: "Creates Architecture Decision Records.",
+        },
         purpose: { fr: "Scaffolder des documents ADR.", en: "Scaffold ADR documents." },
         whenToUse: {
           fr: "Quand vous voulez capturer une décision d'architecture en ADR.",
@@ -224,8 +241,14 @@ export const MARKETPLACES: readonly Marketplace[] = [
       },
       {
         name: "ab-testing",
-        what: { fr: "Génère l'infra et l'analyse de tests A/B.", en: "Generates A/B testing infra and analysis." },
-        purpose: { fr: "Monter un scaffolding de test A/B + analyse.", en: "Stand up A/B test scaffolding + analysis." },
+        what: {
+          fr: "Génère l'infra et l'analyse de tests A/B.",
+          en: "Generates A/B testing infra and analysis.",
+        },
+        purpose: {
+          fr: "Monter un scaffolding de test A/B + analyse.",
+          en: "Stand up A/B test scaffolding + analysis.",
+        },
         whenToUse: {
           fr: "Quand vous voulez mettre en place un test A/B.",
           en: "When you want to set up an A/B test.",
@@ -237,7 +260,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "Une équipe d'ingénierie entière sous forme de skills Claude Code.",
           en: "An entire engineering team as Claude Code skills.",
         },
-        purpose: { fr: "Regrouper des skills par rôle d'ingénierie.", en: "Bundle skills by engineering role." },
+        purpose: {
+          fr: "Regrouper des skills par rôle d'ingénierie.",
+          en: "Bundle skills by engineering role.",
+        },
         whenToUse: {
           fr: "Quand vous voulez plusieurs rôles dev spécialisés dispo en skills.",
           en: "When you want several specialized dev roles available as skills.",
@@ -249,7 +275,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "Automatise les tests de sécurité d'API avec 42Crunch.",
           en: "Automates API security testing with 42Crunch.",
         },
-        purpose: { fr: "Lancer des contrôles sécurité d'API dans Claude Code.", en: "Run API security checks in Claude Code." },
+        purpose: {
+          fr: "Lancer des contrôles sécurité d'API dans Claude Code.",
+          en: "Run API security checks in Claude Code.",
+        },
         whenToUse: {
           fr: "Quand vous voulez des tests de sécurité d'API automatisés.",
           en: "When you want automated API security testing.",
@@ -276,7 +305,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
       {
         name: "commit-commands",
         what: { fr: "Commandes de workflow de commit git.", en: "Git commit workflow commands." },
-        purpose: { fr: "Skills commit, push et création de PR.", en: "Commit, push and PR creation skills." },
+        purpose: {
+          fr: "Skills commit, push et création de PR.",
+          en: "Commit, push and PR creation skills.",
+        },
         whenToUse: {
           fr: "Quand vous voulez des workflows git commit/PR guidés.",
           en: "When you want guided git commit/PR workflows.",
@@ -284,7 +316,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
       },
       {
         name: "code-review",
-        what: { fr: "Revue de code de PR automatisée multi-agents.", en: "Multi-agent automated PR code review." },
+        what: {
+          fr: "Revue de code de PR automatisée multi-agents.",
+          en: "Multi-agent automated PR code review.",
+        },
         purpose: { fr: "Revue de code multi-agents.", en: "Multi-agent code review." },
         whenToUse: {
           fr: "Quand vous voulez une passe de revue automatisée sur un changement.",
@@ -297,7 +332,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "Workflow complet de développement de fonctionnalité avec agents spécialisés.",
           en: "Full feature-development workflow with specialized agents.",
         },
-        purpose: { fr: "Guider le travail de feature de bout en bout.", en: "Guide feature work end-to-end." },
+        purpose: {
+          fr: "Guider le travail de feature de bout en bout.",
+          en: "Guide feature work end-to-end.",
+        },
         whenToUse: {
           fr: "Quand vous voulez un workflow de build de feature structuré.",
           en: "When you want a structured feature-build workflow.",
@@ -324,8 +362,14 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "Boîte à outils pour développer des plugins Claude Code (7 skills experts).",
           en: "Toolkit for developing Claude Code plugins (7 expert skills).",
         },
-        purpose: { fr: "Scaffolder et valider vos propres plugins.", en: "Scaffold and validate your own plugins." },
-        whenToUse: { fr: "Quand vous développez un plugin.", en: "When you are building a plugin." },
+        purpose: {
+          fr: "Scaffolder et valider vos propres plugins.",
+          en: "Scaffold and validate your own plugins.",
+        },
+        whenToUse: {
+          fr: "Quand vous développez un plugin.",
+          en: "When you are building a plugin.",
+        },
       },
       {
         name: "claude-opus-4-5-migration",
@@ -359,7 +403,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
       {
         name: "document-skills",
         what: { fr: "Suite de traitement de documents.", en: "Document-processing suite." },
-        purpose: { fr: "Skills Excel, Word, PowerPoint (et PDF).", en: "Excel, Word, PowerPoint (and PDF) skills." },
+        purpose: {
+          fr: "Skills Excel, Word, PowerPoint (et PDF).",
+          en: "Excel, Word, PowerPoint (and PDF) skills.",
+        },
         whenToUse: {
           fr: "Quand vous voulez que Claude crée/édite des documents Office.",
           en: "When you want Claude to create/edit Office documents.",
@@ -368,7 +415,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
       {
         name: "example-skills",
         what: { fr: "Collection de skills d'exemple.", en: "Collection of example skills." },
-        purpose: { fr: "Démontrer les patterns d'écriture de skills.", en: "Demonstrate skill-authoring patterns." },
+        purpose: {
+          fr: "Démontrer les patterns d'écriture de skills.",
+          en: "Demonstrate skill-authoring patterns.",
+        },
         whenToUse: {
           fr: "Quand vous voulez des exemples de référence pour écrire vos propres skills.",
           en: "When you want reference examples to write your own skills.",
@@ -409,7 +459,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "Workflows de design d'API backend + architecture GraphQL.",
           en: "Backend API design + GraphQL architecture workflows.",
         },
-        purpose: { fr: "Patterns de build backend orchestrés.", en: "Orchestrated backend build patterns." },
+        purpose: {
+          fr: "Patterns de build backend orchestrés.",
+          en: "Orchestrated backend build patterns.",
+        },
         whenToUse: {
           fr: "Quand vous concevez/construisez une API backend.",
           en: "When you design/build a backend API.",
@@ -421,7 +474,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "Orchestration de feature end-to-end (testing, sécurité, perf).",
           en: "End-to-end feature orchestration (testing, security, perf).",
         },
-        purpose: { fr: "Coordonner un build de feature full-stack.", en: "Coordinate a full-stack feature build." },
+        purpose: {
+          fr: "Coordonner un build de feature full-stack.",
+          en: "Coordinate a full-stack feature build.",
+        },
         whenToUse: {
           fr: "Quand vous voulez un seul workflow qui pilote toute une feature.",
           en: "When you want one workflow to drive a whole feature.",
@@ -433,8 +489,14 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "Méthodologie de développement piloté par les tests.",
           en: "Test-driven development methodology.",
         },
-        purpose: { fr: "Automatiser le cycle red-green-refactor.", en: "Automate the red-green-refactor cycle." },
-        whenToUse: { fr: "Quand vous voulez travailler strictement en TDD.", en: "When you want to work strictly TDD." },
+        purpose: {
+          fr: "Automatiser le cycle red-green-refactor.",
+          en: "Automate the red-green-refactor cycle.",
+        },
+        whenToUse: {
+          fr: "Quand vous voulez travailler strictement en TDD.",
+          en: "When you want to work strictly TDD.",
+        },
       },
       {
         name: "security-scanning",
@@ -442,7 +504,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "SAST + scan de vulnérabilités de dépendances, OWASP Top 10.",
           en: "SAST + dependency vulnerability scanning, OWASP Top 10.",
         },
-        purpose: { fr: "Workflow de scan sécurité automatisé.", en: "Automated security-scanning workflow." },
+        purpose: {
+          fr: "Workflow de scan sécurité automatisé.",
+          en: "Automated security-scanning workflow.",
+        },
         whenToUse: {
           fr: "Quand vous voulez une passe de scan sécurité sur votre code.",
           en: "When you want a security-scan pass on your code.",
@@ -466,7 +531,10 @@ export const MARKETPLACES: readonly Marketplace[] = [
           fr: "Dev d'app LLM avec LangGraph, RAG, vector search.",
           en: "LLM app dev with LangGraph, RAG, vector search.",
         },
-        purpose: { fr: "Patterns pour construire des apps LLM.", en: "Patterns for building LLM apps." },
+        purpose: {
+          fr: "Patterns pour construire des apps LLM.",
+          en: "Patterns for building LLM apps.",
+        },
         whenToUse: {
           fr: "Quand vous construisez une application RAG / agent / LLM.",
           en: "When you build a RAG / agent / LLM application.",
@@ -494,7 +562,8 @@ export const MARKETPLACES: readonly Marketplace[] = [
     official: false,
     maintainer: "davila7",
     addCommand: "npx claude-code-templates@latest",
-    installExample: "npx claude-code-templates@latest --agent development-tools/code-reviewer --yes",
+    installExample:
+      "npx claude-code-templates@latest --agent development-tools/code-reviewer --yes",
     what: {
       fr: "Le hub de configuration communautaire le plus étoilé (~28k stars). PAS un marketplace `/plugin marketplace add` : un CLI NPX + annuaire web (aitmpl.com) de composants prêts à l'emploi (agents, commandes, MCPs, settings, hooks, skills) installés individuellement par nom.",
       en: "The most-starred community config hub (~28k stars). NOT a `/plugin marketplace add` marketplace: an NPX CLI + web directory (aitmpl.com) of ready-made components (agents, commands, MCPs, settings, hooks, skills) installed individually by name.",

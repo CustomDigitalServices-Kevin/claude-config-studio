@@ -40,11 +40,24 @@ function initialAnswers(): Answers {
     tools: [],
     skills: [],
     agents: [],
+    mcpServers: [],
     toolRules: [],
     ruleOptions: {},
     memoryNote: "",
-    advanced: { model: "", autoMemory: true, outputStyle: "", permissionMode: "" },
-    workflow: { defaultBehavior: "act", advisor: { enabled: false, model: "" }, orchestration: false },
+    advanced: {
+      model: "",
+      autoMemory: true,
+      outputStyle: "",
+      permissionMode: "",
+      fallbackModel: "",
+      responseLanguage: "",
+      attribution: "",
+    },
+    workflow: {
+      defaultBehavior: "act",
+      advisor: { enabled: false, model: "" },
+      orchestration: false,
+    },
   };
 }
 
@@ -70,7 +83,16 @@ export function App() {
             className="flex items-center gap-1.5 rounded-lg bg-clay-500 px-3 py-1.5 text-sm font-semibold text-ink-950 transition hover:bg-clay-400"
           >
             Custom Digital Services
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M7 17L17 7M9 7h8v8" />
             </svg>
           </a>
