@@ -6,16 +6,16 @@ le questionnaire, le moteur de templates et l'archive ZIP tournent dans le navig
 
 ## Trois onglets
 
-1. **Générateur `.claude`** — un questionnaire produit en live un `.claude/`
+1. **Générateur `.claude`** - un questionnaire produit en live un `.claude/`
    (CLAUDE.md + settings.json + rules + hooks optionnels) + INSTALL.md + README.md,
    téléchargeable en `.zip`. Choix de profil (dev / audit / business / data-ml /
    power-platform / agents / infra / generic), de structure (projet simple, global
    `~/.claude`, domaine N2, projet N3, ou monorepo complet N1/N2/N3), de stack,
    de garde-fous (les « règles 0 »), de rigueur et de hooks.
-2. **Marketplaces** — catalogue vérifié des marketplaces de plugins Claude Code
+2. **Marketplaces** - catalogue vérifié des marketplaces de plugins Claude Code
    (officielles + communautaires) avec, pour chaque plugin, ce que c'est, à quoi il
    sert et quand le prendre.
-3. **Outils tiers** — catalogue des outils qui complètent Claude Code (Obsidian,
+3. **Outils tiers** - catalogue des outils qui complètent Claude Code (Obsidian,
    NotebookLM, context7, Playwright, Sentry, task-master, repomix, ccusage,
    claude-squad, MCP officiels...) avec le mécanisme de connexion réel.
 
