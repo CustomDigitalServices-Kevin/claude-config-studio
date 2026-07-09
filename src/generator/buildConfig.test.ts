@@ -742,6 +742,40 @@ describe("buildConfig — hooks lifecycle (sourcés)", () => {
   });
 });
 
+describe("buildConfig — hook prompt-destructive-guard (type prompt, sans shell)", () => {
+  it("emet un hook PreToolUse/Bash de type prompt, structure exacte + schema conforme", () => {
+    const files = buildConfig(makeAnswers({ hooks: ["prompt-destructive-guard"] }));
+    const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
+      hooks?: Record<string, Array<{ matcher?: string; hooks: Array<Record<string, unknown>> }>>;
+    };
+    const pre = settings.hooks?.["PreToolUse"];
+    expect(pre).toBeDefined();
+    expect(pre!.length).toBe(1);
+    expect(pre![0]!.matcher).toBe("Bash");
+    const hook = pre![0]!.hooks[0]!;
+    expect(hook.type).toBe("prompt");
+    expect(typeof hook.prompt).toBe("string");
+    expect(hook.prompt as string).toContain("$ARGUMENTS");
+    expect(hook).not.toHaveProperty("command");
+    expect(settingsSchema.safeParse(settings).success).toBe(true);
+  });
+
+  it("coexiste avec block-dangerous-bash : deux entrees PreToolUse (command + prompt)", () => {
+    const files = buildConfig(
+      makeAnswers({ hooks: ["block-dangerous-bash", "prompt-destructive-guard"] }),
+    );
+    const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
+      hooks?: Record<string, Array<{ hooks: Array<{ type: string }> }>>;
+    };
+    const pre = settings.hooks?.["PreToolUse"] ?? [];
+    expect(pre.length).toBe(2);
+    const types = pre.map((e) => e.hooks[0]!.type);
+    expect(types).toContain("command");
+    expect(types).toContain("prompt");
+    expect(settingsSchema.safeParse(settings).success).toBe(true);
+  });
+});
+
 describe("buildConfig — workflow (posture + advisor + orchestration)", () => {
   function wf(over: Partial<Answers["workflow"]>): Partial<Answers> {
     return {
