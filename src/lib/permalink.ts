@@ -35,6 +35,10 @@ async function pipeThrough(input: Uint8Array, stream: GenericTransformStream): P
   // l'exerce (spec e2e permalink.spec.ts).
   const writer = stream.writable.getWriter();
   const writeDone = writer.write(input).then(() => writer.close());
+  // Marque la rejection comme geree : sur un input corrompu la LECTURE rejette la
+  // premiere, et sans ce handler la rejection d'ecriture reste orpheline (Node 22
+  // transforme une unhandled rejection en echec de suite ; Node 24 est plus laxiste).
+  writeDone.catch(() => undefined);
   const buffer = await new Response(stream.readable).arrayBuffer();
   await writeDone;
   return new Uint8Array(buffer);
