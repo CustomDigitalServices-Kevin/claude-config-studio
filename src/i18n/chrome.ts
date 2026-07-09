@@ -114,6 +114,17 @@ export const CHROME = {
     },
     errorDetails: { fr: "Détail technique", en: "Technical details" },
   },
+  studio: {
+    import: { fr: "Importer", en: "Import" },
+    copyLink: { fr: "Copier le lien", en: "Copy link" },
+    linkCopied: { fr: "Lien copié", en: "Link copied" },
+    reset: { fr: "Réinitialiser", en: "Reset" },
+    resetConfirm: {
+      fr: "Réinitialiser toutes les réponses ? Cette action est irréversible.",
+      en: "Reset all answers? This action cannot be undone.",
+    },
+    importInvalid: { fr: "Import invalide", en: "Invalid import" },
+  },
   identity: {
     projectName: { fr: "Nom du dossier de travail", en: "Working folder name" },
     projectNamePlaceholder: { fr: "mon-dossier", en: "my-folder" },
@@ -133,7 +144,7 @@ export const CHROME = {
     styleTitle: { fr: "Style de réponses", en: "Response style" },
     styleHint: {
       fr: "Ton et longueur, injecté dans la posture du CLAUDE.md. Distinct du « Style de sortie » des Settings (Explanatory/Learning).",
-      en: "Tone and length, injected into the CLAUDE.md posture. Distinct from the Settings \"Output style\" (Explanatory/Learning).",
+      en: 'Tone and length, injected into the CLAUDE.md posture. Distinct from the Settings "Output style" (Explanatory/Learning).',
     },
     styleDefault: { fr: "Par défaut", en: "Default" },
     styleDefaultSub: { fr: "Aucune directive de ton", en: "No tone directive" },
@@ -301,7 +312,10 @@ export const CHROME = {
       en: "Generates a validation subagent (sourced go/no-go) + a directive: invoke it before any structuring decision.",
     },
     advisorOn: { fr: "Activé", en: "Enabled" },
-    advisorOnSub: { fr: "Génère .claude/agents/advisor.md", en: "Generates .claude/agents/advisor.md" },
+    advisorOnSub: {
+      fr: "Génère .claude/agents/advisor.md",
+      en: "Generates .claude/agents/advisor.md",
+    },
     advisorOff: { fr: "Désactivé", en: "Disabled" },
     advisorOffSub: { fr: "Aucun sous-agent généré", en: "No subagent generated" },
     advisorModelTitle: { fr: "Modèle de l'advisor", en: "Advisor model" },
@@ -315,7 +329,10 @@ export const CHROME = {
       en: "Generates the /orchestrate command: decomposes a complex task and delegates to parallel subagents.",
     },
     orchestrationOn: { fr: "Activée", en: "Enabled" },
-    orchestrationOnSub: { fr: "Génère la commande /orchestrate", en: "Generates the /orchestrate command" },
+    orchestrationOnSub: {
+      fr: "Génère la commande /orchestrate",
+      en: "Generates the /orchestrate command",
+    },
     orchestrationOff: { fr: "Désactivée", en: "Disabled" },
     orchestrationOffSub: { fr: "Pas de commande générée", en: "No command generated" },
   },

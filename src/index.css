@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* Manrope self-host (variable, subset latin). public/ est copie tel quel a la racine dist :
+   avec un deploiement en racine de domaine, le chemin absolu /fonts/... resout. */
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope-variable.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* CSS-first config Tailwind v4 (https://tailwindcss.com/docs/theme) */
 @theme {
   --color-ink-950: #0b0b0c;

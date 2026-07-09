@@ -2,6 +2,7 @@
   "name": "claude-config-generator",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "description": "Generateur web de configuration .claude (CLAUDE.md, settings.json, rules, hooks) + catalogue des marketplaces et outils tiers Claude Code",
   "scripts": {
@@ -15,7 +16,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "verify:catalogs": "vite-node scripts/verify-catalogs.ts"
   },
   "dependencies": {
     "jszip": "^3.10.1",

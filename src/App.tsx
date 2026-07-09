@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { GeneratorTab } from "./components/GeneratorTab";
 import { MarketplacesTab } from "./components/MarketplacesTab";
 import { McpServersTab } from "./components/McpServersTab";
 import { cn } from "./components/primitives";
 import { initialAnswers } from "./data/defaults";
-import type { Answers, Language } from "./types";
+import { loadAnswers, saveAnswers, clearAnswers } from "./lib/persist";
+import { encodeAnswers, decodeAnswers } from "./lib/permalink";
+import { parseManifestJson, parseManifestZip } from "./lib/manifest";
+import { pick, type Answers, type Language } from "./types";
+import { CHROME } from "./i18n/chrome";
 
 type Tab = "generator" | "marketplaces" | "mcp";
 
@@ -24,7 +28,77 @@ const SUBTITLE: Record<Language, string> = {
 export function App() {
   const [tab, setTab] = useState<Tab>("generator");
   const [lang, setLang] = useState<Language>("fr");
-  const [answers, setAnswers] = useState<Answers>(initialAnswers);
+  const [answers, setAnswers] = useState<Answers>(() => loadAnswers() ?? initialAnswers());
+  const [copied, setCopied] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Permalien prioritaire au montage : un lien recu (#c=...) prime sur le localStorage.
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash.startsWith("#c=")) {
+      return;
+    }
+    let cancelled = false;
+    void decodeAnswers(hash.slice(3)).then((decoded) => {
+      if (!cancelled && decoded) {
+        setAnswers(decoded);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Autosave debounce 500 ms : chaque changement de reponses est persiste apres une pause.
+  useEffect(() => {
+    const id = setTimeout(() => saveAnswers(answers), 500);
+    return () => clearTimeout(id);
+  }, [answers]);
+
+  function clearPermalinkHash() {
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
+
+  function onReset() {
+    if (!window.confirm(pick(CHROME.studio.resetConfirm, lang))) {
+      return;
+    }
+    clearAnswers();
+    clearPermalinkHash();
+    setAnswers(initialAnswers());
+  }
+
+  async function onCopyLink() {
+    try {
+      const encoded = await encodeAnswers(answers);
+      window.history.replaceState(null, "", `#c=${encoded}`);
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error("[permalink] copy failed", err);
+    }
+  }
+
+  async function onImportFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) {
+      return;
+    }
+    setImportError(null);
+    const imported = file.name.toLowerCase().endsWith(".zip")
+      ? await parseManifestZip(await file.arrayBuffer())
+      : parseManifestJson(await file.text());
+    if (imported) {
+      clearPermalinkHash();
+      setAnswers(imported);
+    } else {
+      setImportError(pick(CHROME.studio.importInvalid, lang));
+      window.setTimeout(() => setImportError(null), 3000);
+    }
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -36,6 +110,38 @@ export function App() {
         </div>
 
         <div className="ml-auto flex items-center gap-3">
+          {/* Actions studio (persistance / permalien / import). Cluster autonome, cf B3. */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json,.zip"
+            className="hidden"
+            onChange={onImportFile}
+          />
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="rounded-lg border border-ink-700 px-3 py-1.5 text-sm text-ink-300 transition hover:bg-ink-800 hover:text-ink-100"
+            >
+              {pick(CHROME.studio.import, lang)}
+            </button>
+            <button
+              type="button"
+              onClick={onCopyLink}
+              className="rounded-lg border border-ink-700 px-3 py-1.5 text-sm text-ink-300 transition hover:bg-ink-800 hover:text-ink-100"
+            >
+              {copied ? pick(CHROME.studio.linkCopied, lang) : pick(CHROME.studio.copyLink, lang)}
+            </button>
+            <button
+              type="button"
+              onClick={onReset}
+              className="rounded-lg border border-ink-700 px-3 py-1.5 text-sm text-ink-300 transition hover:bg-ink-800 hover:text-ink-100"
+            >
+              {pick(CHROME.studio.reset, lang)}
+            </button>
+            {importError && <span className="text-xs text-amber-flag">{importError}</span>}
+          </div>
           <a
             href="https://custom-digital-services.com"
             target="_blank"

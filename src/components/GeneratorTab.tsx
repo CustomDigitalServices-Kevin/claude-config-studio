@@ -107,12 +107,7 @@ export function GeneratorTab({
           <span className="text-xs text-ink-400">
             {files.length} {pick(CHROME.preview.files, lang)}
           </span>
-          <DownloadButton
-            files={files}
-            projectName={answers.projectName}
-            lang={lang}
-            disabled={error !== null}
-          />
+          <DownloadButton files={files} answers={answers} lang={lang} disabled={error !== null} />
         </div>
         {error && (
           <div className="mb-4 lg:hidden">
@@ -158,7 +153,7 @@ export function GeneratorTab({
       {/* Preview */}
       <div className="hidden min-h-0 border-l border-ink-700 bg-ink-900 lg:block">
         <Card className="m-0 h-full rounded-none border-0">
-          <Preview files={files} projectName={answers.projectName} lang={lang} error={error} />
+          <Preview files={files} answers={answers} lang={lang} error={error} />
         </Card>
       </div>
     </div>

@@ -1,0 +1,72 @@
+# Deploiement atomique du build statique vers le VPS (release horodatee + symlink current).
+#
+# Rollback (une commande, sur le VPS) :
+#   ln -sfn /var/www/claude-config/releases/<sha7-precedent> /var/www/claude-config/current
+#
+# SECURITE : declencheurs limites a workflow_dispatch + push sur main. JAMAIS
+# pull_request ni pull_request_target : sur un repo public, ils exposeraient les
+# secrets de deploiement a du code non revu (exfiltration).
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+# Un seul deploiement a la fois ; on ne coupe pas un deploiement en cours.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy release and flip symlink
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+
+          # known_hosts epingle depuis le secret (pas de ssh-keyscan aveugle).
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+          # Cle privee dediee chargee dans ssh-agent (jamais ecrite en clair sur disque persistant).
+          eval "$(ssh-agent -s)"
+          printf '%s\n' "$VPS_SSH_KEY" | ssh-add -
+
+          RELEASE="${GITHUB_SHA::7}"
+          BASE=/var/www/claude-config
+          SSH="ssh -o UserKnownHostsFile=$HOME/.ssh/known_hosts -o StrictHostKeyChecking=yes"
+
+          # 1. Repertoire de release + miroir du build (rsync atomique par dossier).
+          $SSH "$VPS_USER@$VPS_HOST" "mkdir -p '$BASE/releases/$RELEASE'"
+          rsync -az --delete -e "$SSH" dist/ "$VPS_USER@$VPS_HOST:$BASE/releases/$RELEASE/"
+
+          # 2. Bascule atomique : le symlink current pointe vers la nouvelle release.
+          $SSH "$VPS_USER@$VPS_HOST" "ln -sfn '$BASE/releases/$RELEASE' '$BASE/current'"
+
+          # 3. Purge : ne conserver que les 5 releases les plus recentes.
+          $SSH "$VPS_USER@$VPS_HOST" "cd '$BASE/releases' && ls -1dt */ | tail -n +6 | xargs -r rm -rf"

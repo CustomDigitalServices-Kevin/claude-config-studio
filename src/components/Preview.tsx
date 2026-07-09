@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { GeneratedFile, Language } from "../types";
+import type { Answers, GeneratedFile, Language } from "../types";
 import { pick } from "../types";
 import { CHROME } from "../i18n/chrome";
 import { Badge, cn } from "./primitives";
@@ -12,12 +12,12 @@ function fileKindBadge(kind: GeneratedFile["lang"]): string {
 
 export function Preview({
   files,
-  projectName,
+  answers,
   lang,
   error,
 }: {
   files: GeneratedFile[];
-  projectName: string;
+  answers: Answers;
   lang: Language;
   error: Error | null;
 }) {
@@ -47,12 +47,7 @@ export function Preview({
             </>
           )}
         </div>
-        <DownloadButton
-          files={files}
-          projectName={projectName}
-          lang={lang}
-          disabled={error !== null}
-        />
+        <DownloadButton files={files} answers={answers} lang={lang} disabled={error !== null} />
       </div>
 
       {error ? (
@@ -62,23 +57,25 @@ export function Preview({
       ) : (
         <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,11rem)_1fr]">
           <nav className="overflow-y-auto border-r border-ink-700 py-2">
-          {files.map((f) => (
-            <button
-              key={f.path}
-              type="button"
-              onClick={() => setSelectedPath(f.path)}
-              className={cn(
-                "flex w-full items-center gap-2 px-3 py-1.5 text-left font-mono text-[11px] transition",
-                f.path === selected
-                  ? "bg-clay-500/10 text-clay-300"
-                  : "text-ink-400 hover:bg-ink-800 hover:text-ink-200",
-              )}
-            >
-              <Badge tone={f.path === selected ? "clay" : "neutral"}>{fileKindBadge(f.lang)}</Badge>
-              <span className="truncate">{f.path}</span>
-            </button>
-          ))}
-        </nav>
+            {files.map((f) => (
+              <button
+                key={f.path}
+                type="button"
+                onClick={() => setSelectedPath(f.path)}
+                className={cn(
+                  "flex w-full items-center gap-2 px-3 py-1.5 text-left font-mono text-[11px] transition",
+                  f.path === selected
+                    ? "bg-clay-500/10 text-clay-300"
+                    : "text-ink-400 hover:bg-ink-800 hover:text-ink-200",
+                )}
+              >
+                <Badge tone={f.path === selected ? "clay" : "neutral"}>
+                  {fileKindBadge(f.lang)}
+                </Badge>
+                <span className="truncate">{f.path}</span>
+              </button>
+            ))}
+          </nav>
 
           <div className="min-w-0 overflow-auto">
             <pre className="whitespace-pre p-4 font-mono text-[12px] leading-relaxed text-ink-200">
