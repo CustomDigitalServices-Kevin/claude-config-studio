@@ -363,6 +363,85 @@ export const CHROME = {
     add: { fr: "Ajouter au .mcp.json", en: "Add to .mcp.json" },
     selected: { fr: "sélectionné(s)", en: "selected" },
   },
+  snapshots: {
+    button: { fr: "Snapshots", en: "Snapshots" },
+    title: { fr: "Snapshots de configuration", en: "Configuration snapshots" },
+    intro: {
+      fr: "Sauvegardez l'état courant sous un nom, puis comparez deux versions fichier par fichier.",
+      en: "Save the current state under a name, then compare two versions file by file.",
+    },
+    close: { fr: "Fermer", en: "Close" },
+    namePlaceholder: { fr: "Nom du snapshot", en: "Snapshot name" },
+    save: { fr: "Sauvegarder l'état courant", en: "Save current state" },
+    nameInvalid: {
+      fr: "Le nom doit faire entre 1 et 60 caractères.",
+      en: "The name must be 1 to 60 characters.",
+    },
+    limitReached: {
+      fr: "Limite de 20 snapshots atteinte. Supprimez-en un pour continuer.",
+      en: "Limit of 20 snapshots reached. Delete one to continue.",
+    },
+    empty: { fr: "Aucun snapshot enregistré pour l'instant.", en: "No snapshot saved yet." },
+    count: { fr: "snapshot(s)", en: "snapshot(s)" },
+    apply: { fr: "Appliquer", en: "Apply" },
+    remove: { fr: "Supprimer", en: "Delete" },
+    deleteConfirm: {
+      fr: "Supprimer ce snapshot ? Cette action est irréversible.",
+      en: "Delete this snapshot? This action cannot be undone.",
+    },
+    applyConfirm: {
+      fr: "Appliquer ce snapshot écrasera vos réponses courantes. Continuer ?",
+      en: "Applying this snapshot will overwrite your current answers. Continue?",
+    },
+    compare: { fr: "Comparer", en: "Compare" },
+    compareHint: {
+      fr: "Sélectionnez deux snapshots distincts pour comparer les fichiers générés.",
+      en: "Select two distinct snapshots to compare the generated files.",
+    },
+    compareExit: { fr: "Quitter la comparaison", en: "Exit comparison" },
+    versionA: { fr: "Version A", en: "Version A" },
+    versionB: { fr: "Version B", en: "Version B" },
+    filesTitle: { fr: "Fichiers générés", en: "Generated files" },
+    statusAdded: { fr: "ajouté", en: "added" },
+    statusRemoved: { fr: "supprimé", en: "removed" },
+    statusModified: { fr: "modifié", en: "modified" },
+    identical: {
+      fr: "Les deux versions génèrent des fichiers identiques.",
+      en: "Both versions generate identical files.",
+    },
+    diffHint: {
+      fr: "Cliquez sur un fichier modifié pour voir le diff.",
+      en: "Click a modified file to see the diff.",
+    },
+    diffError: { fr: "Diff indisponible pour ce fichier.", en: "Diff unavailable for this file." },
+  },
+  community: {
+    intro: {
+      fr: "Configurations partagées par la communauté. Ouvrez-en une dans le Studio ou publiez la vôtre.",
+      en: "Configurations shared by the community. Open one in the Studio or publish yours.",
+    },
+    publish: { fr: "Publier ma config", en: "Publish my config" },
+    open: { fr: "Ouvrir dans le Studio", en: "Open in the Studio" },
+    loading: { fr: "Chargement des configurations...", en: "Loading configurations..." },
+    errorTitle: { fr: "Board indisponible", en: "Board unavailable" },
+    errorBody: {
+      fr: "Le catalogue communautaire est injoignable pour le moment. Le Studio reste pleinement fonctionnel.",
+      en: "The community catalog is unreachable for now. The Studio stays fully functional.",
+    },
+    empty: { fr: "Aucune config publiée pour l'instant.", en: "No config published yet." },
+    author: { fr: "par", en: "by" },
+    prev: { fr: "Précédent", en: "Previous" },
+    next: { fr: "Suivant", en: "Next" },
+    pageLabel: { fr: "Page", en: "Page" },
+    openConfirm: {
+      fr: "Ouvrir cette config écrasera vos réponses courantes. Continuer ?",
+      en: "Opening this config will overwrite your current answers. Continue?",
+    },
+    openError: {
+      fr: "Ce permalien est corrompu, impossible de l'ouvrir.",
+      en: "This permalink is corrupt and cannot be opened.",
+    },
+  },
 } satisfies LocalizedTree;
 
 /**
