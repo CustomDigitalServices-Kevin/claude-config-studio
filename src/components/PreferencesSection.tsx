@@ -14,7 +14,11 @@ const LANGS: { value: Language; label: string; sub: Localized }[] = [
 ];
 
 const RIGORS: { value: Rigor; label: Localized; sub: Localized }[] = [
-  { value: "strict", label: CHROME.preferences.rigorStrict, sub: CHROME.preferences.rigorStrictSub },
+  {
+    value: "strict",
+    label: CHROME.preferences.rigorStrict,
+    sub: CHROME.preferences.rigorStrictSub,
+  },
   {
     value: "standard",
     label: CHROME.preferences.rigorStandard,

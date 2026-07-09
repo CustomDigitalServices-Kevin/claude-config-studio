@@ -310,12 +310,7 @@
         "minLength": 1
       },
       "description": "Glob patterns for CLAUDE.md files to exclude from loading. Useful in monorepos to skip irrelevant instructions from other teams. Patterns match against absolute file paths. Arrays merge across settings layers. Managed policy CLAUDE.md files cannot be excluded. See https://code.claude.com/docs/en/memory#exclude-specific-claude-md-files",
-      "examples": [
-        [
-          "**/monorepo/CLAUDE.md",
-          "/home/user/monorepo/other-team/.claude/rules/**"
-        ]
-      ]
+      "examples": [["**/monorepo/CLAUDE.md", "/home/user/monorepo/other-team/.claude/rules/**"]]
     },
     "cleanupPeriodDays": {
       "type": "integer",

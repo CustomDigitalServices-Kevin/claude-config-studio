@@ -21,8 +21,14 @@ describe("garde em/en dash — fichiers racine (README, index.html)", () => {
   const paths = Object.keys(rootFiles);
 
   it("les deux fichiers racine sont bien chargés", () => {
-    expect(paths.some((p) => p.endsWith("README.md")), "README.md introuvable").toBe(true);
-    expect(paths.some((p) => p.endsWith("index.html")), "index.html introuvable").toBe(true);
+    expect(
+      paths.some((p) => p.endsWith("README.md")),
+      "README.md introuvable",
+    ).toBe(true);
+    expect(
+      paths.some((p) => p.endsWith("index.html")),
+      "index.html introuvable",
+    ).toBe(true);
   });
 
   for (const [path, content] of Object.entries(rootFiles)) {

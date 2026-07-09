@@ -97,7 +97,11 @@ function HashIcon() {
 const STYLE_OPTIONS: { value: ResponseStyle; label: Localized; sub: Localized }[] = [
   { value: "", label: CHROME.identity.styleDefault, sub: CHROME.identity.styleDefaultSub },
   { value: "concise", label: CHROME.identity.styleConcise, sub: CHROME.identity.styleConciseSub },
-  { value: "detailed", label: CHROME.identity.styleDetailed, sub: CHROME.identity.styleDetailedSub },
+  {
+    value: "detailed",
+    label: CHROME.identity.styleDetailed,
+    sub: CHROME.identity.styleDetailedSub,
+  },
 ];
 
 function Field({

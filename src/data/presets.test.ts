@@ -2,14 +2,7 @@ import { describe, it, expect } from "vitest";
 import { PRESETS, applyPreset } from "./presets";
 import { initialAnswers } from "./defaults";
 import { defaultRulesForProfiles } from "./profiles";
-import {
-  PROFILE_IDS,
-  STACK_IDS,
-  RULE_IDS,
-  HOOK_IDS,
-  answersSchema,
-  type Answers,
-} from "../types";
+import { PROFILE_IDS, STACK_IDS, RULE_IDS, HOOK_IDS, answersSchema, type Answers } from "../types";
 
 const profileSet = new Set<string>(PROFILE_IDS);
 const stackSet = new Set<string>(STACK_IDS);

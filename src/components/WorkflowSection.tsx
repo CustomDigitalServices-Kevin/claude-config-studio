@@ -16,8 +16,7 @@ export function WorkflowSection({ answers: a, setAnswers: setA, lang }: SectionP
   return (
     <div className="space-y-7">
       <p className="text-xs leading-relaxed text-ink-400">
-        {pick(c.intro, lang)} (
-        <code className="text-clay-300">.claude/agents/advisor.md</code>,{" "}
+        {pick(c.intro, lang)} (<code className="text-clay-300">.claude/agents/advisor.md</code>,{" "}
         <code className="text-clay-300">.claude/commands/orchestrate.md</code>).
       </p>
 
