@@ -9,9 +9,7 @@ import { SOURCES } from "../data/sources";
  * Retourne "" si aucun agent sélectionné. Aucun corps d'agent n'est généré : seules les commandes.
  */
 export function generateAgentsInstall(a: Answers): string {
-  const selected = a.agents
-    .map(agentById)
-    .filter((x): x is AgentEntry => Boolean(x));
+  const selected = a.agents.map(agentById).filter((x): x is AgentEntry => Boolean(x));
   if (selected.length === 0) {
     return "";
   }
@@ -38,9 +36,7 @@ export function generateAgentsInstall(a: Answers): string {
 
   if (slashLines.length > 0) {
     out.push(
-      fr
-        ? "### Dans Claude Code (commandes slash)"
-        : "### Inside Claude Code (slash commands)",
+      fr ? "### Dans Claude Code (commandes slash)" : "### Inside Claude Code (slash commands)",
       "",
       fr
         ? "Tapez ces commandes DANS une session Claude Code (pas dans le terminal). Un plugin marketplace peut regrouper plusieurs agents :"
@@ -61,9 +57,7 @@ export function generateAgentsInstall(a: Answers): string {
         ? "### Dans le terminal (CLI claude-code-templates)"
         : "### In the terminal (claude-code-templates CLI)",
       "",
-      fr
-        ? "Tapez ces commandes dans votre terminal :"
-        : "Run these commands in your terminal:",
+      fr ? "Tapez ces commandes dans votre terminal :" : "Run these commands in your terminal:",
       "",
       "```",
       ...shellLines,

@@ -83,7 +83,9 @@ function identityNote(a: Answers): string {
   // Libellé neutre volontaire (jamais "SIREN") : la dé-personnalisation interdit tout token identitaire.
   // Gate sur org : cohérent avec le champ UI (visible seulement si organisation renseignée).
   if (a.companyId.trim() && a.org.trim()) {
-    bits.push(`${fr ? "Numéro d'entreprise" : "Company registration number"} : ${a.companyId.trim()}`);
+    bits.push(
+      `${fr ? "Numéro d'entreprise" : "Company registration number"} : ${a.companyId.trim()}`,
+    );
   }
   return bits.length > 0 ? quote([bits.join(" - ")]) : "";
 }
@@ -164,11 +166,19 @@ function renderRuleInline(rule: RuleModule, a: Answers): string {
     const opts = ruleOptionsFor("green-flag");
     const iconOpt = opts.find((o) => o.id === "icon");
     const textOpt = opts.find((o) => o.id === "headerText");
-    const iconVal = iconOpt ? String(optionValue(a.ruleOptions, "green-flag", iconOpt, a.rigor)) : "check";
+    const iconVal = iconOpt
+      ? String(optionValue(a.ruleOptions, "green-flag", iconOpt, a.rigor))
+      : "check";
     const rawHeader = textOpt
       ? String(optionValue(a.ruleOptions, "green-flag", textOpt, a.rigor))
       : "{name} - {date} :";
-    const iconChars: Record<string, string> = { check: "✅", dot: "🟢", arrow: "▶", star: "⭐", none: "" };
+    const iconChars: Record<string, string> = {
+      check: "✅",
+      dot: "🟢",
+      arrow: "▶",
+      star: "⭐",
+      none: "",
+    };
     const iconChar = iconChars[iconVal] ?? "";
     const filledHeader = rawHeader
       .replace(/\{name\}/g, name)
@@ -260,9 +270,7 @@ export function generateRuleFile(ruleId: RuleId, a: Answers): string {
   const rule = ruleById(ruleId);
   const fr = a.language === "fr";
   const front: string[] = ["---", `name: ${pick(rule.title, a.language)}`];
-  front.push(
-    `description: ${pick(rule.summary, a.language)}`,
-  );
+  front.push(`description: ${pick(rule.summary, a.language)}`);
   if (rule.kind === "scoped" && rule.scopedPaths && rule.scopedPaths.length > 0) {
     const globs = rule.scopedPaths.map((p) => `"${p}"`).join(", ");
     front.push(`paths: [${globs}]`);

@@ -76,21 +76,24 @@ const SECTIONS: Section[] = [
     id: "tools",
     label: "Outils tiers",
     title: "Outils tiers à connecter",
-    subtitle: "Boostez Claude Code. Le détail de chaque outil va dans TOOLS.md ; les serveurs MCP ont leur onglet dédié.",
+    subtitle:
+      "Boostez Claude Code. Le détail de chaque outil va dans TOOLS.md ; les serveurs MCP ont leur onglet dédié.",
     Component: ToolsSection,
   },
   {
     id: "skills",
     label: "Skills",
     title: "Skills à installer",
-    subtitle: "Catalogue sourcé. La sélection ajoute la commande d'install dans INSTALL.md, sans générer de fichier.",
+    subtitle:
+      "Catalogue sourcé. La sélection ajoute la commande d'install dans INSTALL.md, sans générer de fichier.",
     Component: SkillsSection,
   },
   {
     id: "agents",
     label: "Agents",
     title: "Agents à installer",
-    subtitle: "Catalogue sourcé de subagents. La sélection ajoute la commande d'install dans INSTALL.md, sans générer de fichier d'agent.",
+    subtitle:
+      "Catalogue sourcé de subagents. La sélection ajoute la commande d'install dans INSTALL.md, sans générer de fichier d'agent.",
     Component: AgentsSection,
   },
   {
@@ -126,7 +129,10 @@ export function GeneratorTab({
     }
   }, [answers]);
 
-  const activeIndex = Math.max(0, SECTIONS.findIndex((s) => s.id === activeSection));
+  const activeIndex = Math.max(
+    0,
+    SECTIONS.findIndex((s) => s.id === activeSection),
+  );
   const active = SECTIONS[activeIndex] ?? SECTIONS[0];
   const ActiveComponent = active.Component;
   const navItems: NavItem[] = SECTIONS.map((s) => ({ id: s.id, label: s.label }));

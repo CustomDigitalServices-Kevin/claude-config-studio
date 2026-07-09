@@ -22,7 +22,10 @@ export function PreferencesSection({ answers: a, setAnswers: setA }: SectionProp
   return (
     <div className="space-y-7">
       <section>
-        <SectionLabel title="Langue des fichiers" hint="Langue de la prose générée dans les fichiers .claude." />
+        <SectionLabel
+          title="Langue des fichiers"
+          hint="Langue de la prose générée dans les fichiers .claude."
+        />
         <div className="grid grid-cols-2 gap-2.5">
           {LANGS.map((l) => (
             <OptionCard
@@ -65,7 +68,9 @@ export function PreferencesSection({ answers: a, setAnswers: setA }: SectionProp
               title={s.label.fr}
               subtitle={s.summary.fr}
               selected={a.stacks.includes(s.id)}
-              onClick={() => setA((prev) => ({ ...prev, stacks: toggle<StackId>(prev.stacks, s.id) }))}
+              onClick={() =>
+                setA((prev) => ({ ...prev, stacks: toggle<StackId>(prev.stacks, s.id) }))
+              }
             />
           ))}
         </div>

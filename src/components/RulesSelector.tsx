@@ -56,7 +56,9 @@ export function RulesSelector({
               >
                 <CheckBox on={selected} />
                 {r.core0 && <span className="text-clay-400">●</span>}
-                <span className="truncate text-sm font-medium text-ink-100">{pick(r.label, lang)}</span>
+                <span className="truncate text-sm font-medium text-ink-100">
+                  {pick(r.label, lang)}
+                </span>
                 {r.kind === "scoped" && <Badge tone="neutral">{t.scoped}</Badge>}
               </button>
               <button

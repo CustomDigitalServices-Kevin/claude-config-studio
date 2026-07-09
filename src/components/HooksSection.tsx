@@ -32,13 +32,17 @@ export function HooksSection({ answers: a, setAnswers: setA }: SectionProps) {
               <div className="flex items-center gap-2 p-2.5">
                 <button
                   type="button"
-                  onClick={() => setA((prev) => ({ ...prev, hooks: toggle<HookId>(prev.hooks, h.id) }))}
+                  onClick={() =>
+                    setA((prev) => ({ ...prev, hooks: toggle<HookId>(prev.hooks, h.id) }))
+                  }
                   className="flex min-w-0 flex-1 items-center gap-2 text-left"
                 >
                   <span
                     className={cn(
                       "flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px]",
-                      on ? "border-clay-500 bg-clay-500 text-ink-950" : "border-ink-600 text-transparent",
+                      on
+                        ? "border-clay-500 bg-clay-500 text-ink-950"
+                        : "border-ink-600 text-transparent",
                     )}
                   >
                     ✓

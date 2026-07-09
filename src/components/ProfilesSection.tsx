@@ -1,9 +1,5 @@
 import type { ProfileId, SectorId } from "../types";
-import {
-  PROFILES,
-  defaultRulesForProfiles,
-  recommendedStacksForProfiles,
-} from "../data/profiles";
+import { PROFILES, defaultRulesForProfiles, recommendedStacksForProfiles } from "../data/profiles";
 import { DEPTH_OPTIONS, hasSectorLayer } from "../data/depths";
 import { SECTORS } from "../data/sectors";
 import { SectionLabel } from "./primitives";
@@ -114,10 +110,16 @@ export function ProfilesSection({ answers: a, setAnswers: setA }: SectionProps) 
                   border: "1px solid oklch(0.78 0.15 70 / 0.32)",
                 }}
               >
-                <span className="text-[13px] font-extrabold" style={{ color: "oklch(0.84 0.14 75)" }}>
+                <span
+                  className="text-[13px] font-extrabold"
+                  style={{ color: "oklch(0.84 0.14 75)" }}
+                >
                   {a.sectors.length}
                 </span>
-                <span className="text-[12px] font-semibold" style={{ color: "oklch(0.78 0.09 75)" }}>
+                <span
+                  className="text-[12px] font-semibold"
+                  style={{ color: "oklch(0.78 0.09 75)" }}
+                >
                   sélectionné(s)
                 </span>
               </span>

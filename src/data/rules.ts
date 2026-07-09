@@ -147,7 +147,16 @@ export const RULE_MODULES: readonly RuleModule[] = [
       en: `- Alert as soon as the context window approaches saturation and suggest a targeted \`/compact\` before continuing.
 - Between unrelated tasks: \`/clear\`. During a long drifting task: \`/compact "keep X"\`.`,
     },
-    defaultForProfiles: ["dev", "audit", "business", "data-ml", "power-platform", "agents", "infra", "generic"],
+    defaultForProfiles: [
+      "dev",
+      "audit",
+      "business",
+      "data-ml",
+      "power-platform",
+      "agents",
+      "infra",
+      "generic",
+    ],
     source: SOURCES.contextWindow,
   },
   {
@@ -384,7 +393,10 @@ export const RULE_MODULES: readonly RuleModule[] = [
       fr: "Lecture par défaut, modif sur GO, livrable = rapport.",
       en: "Read by default, change on GO, deliverable = report.",
     },
-    title: { fr: "Posture audit (lecture seule par défaut)", en: "Audit posture (read-only by default)" },
+    title: {
+      fr: "Posture audit (lecture seule par défaut)",
+      en: "Audit posture (read-only by default)",
+    },
     body: {
       fr: `- Par défaut : lecture et analyse uniquement. Toute modification de fichier ou commande mutative exige un GO explicite de l'utilisateur.
 - Livrable = rapport de findings priorisés (sévérité + emplacement + correction proposée), pas des changements silencieux.
@@ -433,8 +445,8 @@ export const RULE_DETAILS: Record<RuleId, Localized> = {
     en: "Watches the context window and suggests a targeted /compact or /clear before saturation, to avoid quality loss on long sessions.",
   },
   "memory-hygiene": {
-    fr: "Garde les fichiers mémoire efficaces : MEMORY.md reste un index concis (seules les 200 premières lignes ou 25 Ko sont chargées par session, le reste va dans des fichiers thématiques), horodatage ABSOLU jamais relatif (une session future ne peut pas résoudre \"hier\"), et uniquement les faits clés et non évidents. Chiffres issus de la doc officielle memory (code.claude.com/docs/en/memory).",
-    en: "Keeps memory files effective: MEMORY.md stays a concise index (only the first 200 lines or 25 KB are loaded per session, the rest goes into topic files), ABSOLUTE timestamps never relative (a future session cannot resolve \"yesterday\"), and only key non-obvious facts. Numbers from the official memory docs (code.claude.com/docs/en/memory).",
+    fr: 'Garde les fichiers mémoire efficaces : MEMORY.md reste un index concis (seules les 200 premières lignes ou 25 Ko sont chargées par session, le reste va dans des fichiers thématiques), horodatage ABSOLU jamais relatif (une session future ne peut pas résoudre "hier"), et uniquement les faits clés et non évidents. Chiffres issus de la doc officielle memory (code.claude.com/docs/en/memory).',
+    en: 'Keeps memory files effective: MEMORY.md stays a concise index (only the first 200 lines or 25 KB are loaded per session, the rest goes into topic files), ABSOLUTE timestamps never relative (a future session cannot resolve "yesterday"), and only key non-obvious facts. Numbers from the official memory docs (code.claude.com/docs/en/memory).',
   },
   "tests-required": {
     fr: "Tout bug commence par un test qui échoue ; chaque feature couvre happy path + cas d'erreur + edge cases avant d'être considérée terminée.",
@@ -522,7 +534,7 @@ export const RULE_OPTIONS: Partial<Record<RuleId, RuleOption[]>> = {
           label: { fr: "Stricte", en: "Strict" },
           line: {
             fr: "- Aucune hypothèse : si aucune source fiable, dire \"je n'ai pas trouvé de source\" et s'arrêter.",
-            en: "- No hypothesis: if no reliable source, say \"I found no source\" and stop.",
+            en: '- No hypothesis: if no reliable source, say "I found no source" and stop.',
           },
         },
         {
@@ -569,7 +581,10 @@ export const RULE_OPTIONS: Partial<Record<RuleId, RuleOption[]>> = {
       id: "datetime",
       type: "toggle",
       default: true,
-      label: { fr: "Horodatage avec l'heure (pas seulement la date)", en: "Timestamp with time (not just the date)" },
+      label: {
+        fr: "Horodatage avec l'heure (pas seulement la date)",
+        en: "Timestamp with time (not just the date)",
+      },
       lineOn: {
         fr: "- Horodatage complet : date + heure (ex 2026-07-01 14:30), pour tracer l'ordre des événements.",
         en: "- Full timestamp: date + time (e.g. 2026-07-01 14:30), to trace the order of events.",
@@ -603,9 +618,30 @@ export const RULE_OPTIONS: Partial<Record<RuleId, RuleOption[]>> = {
       rigorDefault: { light: "happy" },
       label: { fr: "Couverture minimale", en: "Minimum coverage" },
       choices: [
-        { value: "happy", label: { fr: "Happy path", en: "Happy path" }, line: { fr: "- Couverture minimale : happy path.", en: "- Minimum coverage: happy path." } },
-        { value: "errors", label: { fr: "+ cas d'erreur", en: "+ error cases" }, line: { fr: "- Couverture : happy path + cas d'erreur.", en: "- Coverage: happy path + error cases." } },
-        { value: "edge", label: { fr: "+ edge cases", en: "+ edge cases" }, line: { fr: "- Couverture : happy path + cas d'erreur + edge cases.", en: "- Coverage: happy path + error cases + edge cases." } },
+        {
+          value: "happy",
+          label: { fr: "Happy path", en: "Happy path" },
+          line: {
+            fr: "- Couverture minimale : happy path.",
+            en: "- Minimum coverage: happy path.",
+          },
+        },
+        {
+          value: "errors",
+          label: { fr: "+ cas d'erreur", en: "+ error cases" },
+          line: {
+            fr: "- Couverture : happy path + cas d'erreur.",
+            en: "- Coverage: happy path + error cases.",
+          },
+        },
+        {
+          value: "edge",
+          label: { fr: "+ edge cases", en: "+ edge cases" },
+          line: {
+            fr: "- Couverture : happy path + cas d'erreur + edge cases.",
+            en: "- Coverage: happy path + error cases + edge cases.",
+          },
+        },
       ],
     },
   ],
@@ -632,12 +668,18 @@ export const RULE_OPTIONS: Partial<Record<RuleId, RuleOption[]>> = {
         {
           value: "strict",
           label: { fr: "Strict (aucune modif)", en: "Strict (no change)" },
-          line: { fr: "- Mode strict : aucune modification de fichier, même avec GO ; uniquement un rapport.", en: "- Strict mode: no file modification, even with a GO; report only." },
+          line: {
+            fr: "- Mode strict : aucune modification de fichier, même avec GO ; uniquement un rapport.",
+            en: "- Strict mode: no file modification, even with a GO; report only.",
+          },
         },
         {
           value: "onGo",
           label: { fr: "Modif sur GO explicite", en: "Change on explicit GO" },
-          line: { fr: "- Modification autorisée uniquement après GO explicite, fichier par fichier.", en: "- Modification allowed only after an explicit GO, file by file." },
+          line: {
+            fr: "- Modification autorisée uniquement après GO explicite, fichier par fichier.",
+            en: "- Modification allowed only after an explicit GO, file by file.",
+          },
         },
       ],
     },

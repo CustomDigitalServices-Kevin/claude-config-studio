@@ -4,8 +4,20 @@ import { pick, type Language, type ProfileId } from "../types";
 import { Badge, CatalogCard, ExternalLink } from "./primitives";
 
 const T = {
-  fr: { title: "Connecter un serveur MCP", does: "Permet", official: "officiel", community: "communauté", reco: "Recommandé pour vos profils" },
-  en: { title: "Connect an MCP server", does: "Lets you", official: "official", community: "community", reco: "Recommended for your profiles" },
+  fr: {
+    title: "Connecter un serveur MCP",
+    does: "Permet",
+    official: "officiel",
+    community: "communauté",
+    reco: "Recommandé pour vos profils",
+  },
+  en: {
+    title: "Connect an MCP server",
+    does: "Lets you",
+    official: "official",
+    community: "community",
+    reco: "Recommended for your profiles",
+  },
 };
 
 function Code({ children }: { children: string }) {
@@ -22,7 +34,9 @@ function ServerCard({ s, lang }: { s: McpServer; lang: Language }) {
     <CatalogCard hover className="flex flex-col p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-sm font-semibold text-ink-100">{s.name}</h3>
-        <Badge tone={s.official ? "moss" : "neutral"}>{s.official ? t.official : t.community}</Badge>
+        <Badge tone={s.official ? "moss" : "neutral"}>
+          {s.official ? t.official : t.community}
+        </Badge>
       </div>
       <p className="mt-2 text-sm leading-relaxed text-ink-300">{pick(s.what, lang)}</p>
       <p className="mt-1 text-xs leading-relaxed text-ink-400">
@@ -45,13 +59,7 @@ function ServerCard({ s, lang }: { s: McpServer; lang: Language }) {
   );
 }
 
-export function McpServersTab({
-  lang,
-  profiles,
-}: {
-  lang: Language;
-  profiles: ProfileId[];
-}) {
+export function McpServersTab({ lang, profiles }: { lang: Language; profiles: ProfileId[] }) {
   const relevant = relevantMcpCategories(profiles);
   const categories = [...MCP_CATEGORIES].sort(
     (a, b) => Number(relevant.has(b.id)) - Number(relevant.has(a.id)),

@@ -102,7 +102,9 @@ function ToolRow({
           {ruleOn && (
             <div className="space-y-2 px-3 pb-2.5">
               {tool.rule.detail && (
-                <p className="text-[11px] leading-snug text-ink-400">{pick(tool.rule.detail, lang)}</p>
+                <p className="text-[11px] leading-snug text-ink-400">
+                  {pick(tool.rule.detail, lang)}
+                </p>
               )}
               {tool.rule.options && tool.rule.options.length > 0 && (
                 <OptionControls

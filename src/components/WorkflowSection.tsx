@@ -16,7 +16,8 @@ export function WorkflowSection({ answers: a, setAnswers: setA }: SectionProps) 
     <div className="space-y-7">
       <p className="text-xs leading-relaxed text-ink-400">
         La posture pilote le comportement de Claude Code face à une demande. L'advisor et
-        l'orchestration génèrent des fichiers dédiés (<code className="text-clay-300">.claude/agents/advisor.md</code>,{" "}
+        l'orchestration génèrent des fichiers dédiés (
+        <code className="text-clay-300">.claude/agents/advisor.md</code>,{" "}
         <code className="text-clay-300">.claude/commands/orchestrate.md</code>).
       </p>
 

@@ -4,11 +4,7 @@ import { RULE_MODULES, type RuleModule } from "../data/rules";
 import { hasProjectLayer, hasSectorLayer } from "../data/depths";
 import { sectorById } from "../data/sectors";
 import { generateSettings, settingsToJson } from "./settings";
-import {
-  generateClaudeMd,
-  generateRuleFile,
-  type ClaudeMdVariant,
-} from "./claudeMd";
+import { generateClaudeMd, generateRuleFile, type ClaudeMdVariant } from "./claudeMd";
 import { generateInitialize } from "./initialize";
 import { generateInstall } from "./install";
 import { generateReadme } from "./readme";
@@ -152,10 +148,14 @@ export function buildConfig(a: Answers): GeneratedFile[] {
 
   if (!hasSectorLayer(a.depth)) {
     // Profondeur n0 : une seule couche racine, config complète.
-    files.push(...emitLayer(a, ".claude", "single", core, scoped, fullSettings, toolsSection, rootExtra));
+    files.push(
+      ...emitLayer(a, ".claude", "single", core, scoped, fullSettings, toolsSection, rootExtra),
+    );
   } else {
     // Racine workspace : toutes les règles + settings complet + section outils + Hierarchie + directive INITIALIZE.
-    files.push(...emitLayer(a, ".claude", "n1", core, scoped, fullSettings, toolsSection, rootExtra));
+    files.push(
+      ...emitLayer(a, ".claude", "n1", core, scoped, fullSettings, toolsSection, rootExtra),
+    );
 
     // Squelettes N1 déterministes : un .claude minimal par secteur coché (hérite de la racine, pas de settings).
     const sectors = a.sectors.map(sectorById);
@@ -182,7 +182,11 @@ export function buildConfig(a: Answers): GeneratedFile[] {
   }
   const orchestrateCmd = generateOrchestrateCommand(a);
   if (orchestrateCmd) {
-    files.push({ path: ".claude/commands/orchestrate.md", content: orchestrateCmd, lang: "markdown" });
+    files.push({
+      path: ".claude/commands/orchestrate.md",
+      content: orchestrateCmd,
+      lang: "markdown",
+    });
   }
 
   // Outils sélectionnés : TOOLS.md (fiche détaillée) à la racine de l'archive.

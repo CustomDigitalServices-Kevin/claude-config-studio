@@ -126,14 +126,7 @@ function blockDangerousCommand(fr: boolean): string {
   const msg = fr
     ? "BLOQUÉ: commande destructive détectée"
     : "BLOCKED: destructive command detected";
-  const patterns = [
-    "rm -rf /",
-    "rm -rf ~",
-    "mkfs",
-    "dd if=",
-    ":(){ :|:& };:",
-    "chmod 777",
-  ];
+  const patterns = ["rm -rf /", "rm -rf ~", "mkfs", "dd if=", ":(){ :|:& };:", "chmod 777"];
   const loop = patterns.map((p) => `"${p}"`).join(" ");
   return `bash -c 'IN=$(cat); for P in ${loop}; do if printf "%s" "$IN" | grep -qF "$P"; then echo "${msg} ($P)" >&2; exit 2; fi; done; exit 0'`;
 }

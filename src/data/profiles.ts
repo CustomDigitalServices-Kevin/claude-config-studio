@@ -51,11 +51,7 @@ export const PROFILES: readonly Profile[] = [
       en: "Audit profile: READ-ONLY analysis. Any modification requires an explicit GO. The deliverable is a prioritized findings report, never silent changes.",
     },
     recommendedStacks: ["none", "web-ts", "python"],
-    extraDeny: [
-      "Bash(git push --force*)",
-      "Bash(git reset --hard*)",
-      "Bash(git commit*)",
-    ],
+    extraDeny: ["Bash(git push --force*)", "Bash(git reset --hard*)", "Bash(git commit*)"],
     extraAsk: [],
   },
   {
@@ -181,9 +177,7 @@ export function profileById(id: ProfileId): Profile {
 
 /** Règles cochées par défaut pour un profil, dérivées des modules (source unique, pas de drift). */
 export function defaultRulesForProfile(profile: ProfileId): RuleId[] {
-  return RULE_MODULES.filter((r) => r.defaultForProfiles.includes(profile)).map(
-    (r) => r.id,
-  );
+  return RULE_MODULES.filter((r) => r.defaultForProfiles.includes(profile)).map((r) => r.id);
 }
 
 /** Union ordonnée des règles par défaut de plusieurs profils (sélection multiple). */

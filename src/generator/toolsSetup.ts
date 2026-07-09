@@ -44,7 +44,14 @@ export function toolRulesSection(a: Answers): string {
     if (!rule) {
       return "";
     }
-    const body = applyOptions(t.id, pick(rule.body, a.language), rule.options, a.ruleOptions, a.language, a.rigor);
+    const body = applyOptions(
+      t.id,
+      pick(rule.body, a.language),
+      rule.options,
+      a.ruleOptions,
+      a.language,
+      a.rigor,
+    );
     return `### ${pick(rule.title, a.language)}\n\n${body}`;
   });
   return [header, "", blocks.join("\n\n")].join("\n");
