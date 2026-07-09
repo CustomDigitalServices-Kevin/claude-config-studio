@@ -161,7 +161,7 @@ export function GeneratorTab({
       {/* Preview */}
       <div className="hidden min-h-0 border-l border-ink-700 bg-ink-900 lg:block">
         <Card className="m-0 h-full rounded-none border-0">
-          <Preview files={files} projectName={answers.projectName} />
+          <Preview files={files} projectName={answers.projectName} answers={answers} />
         </Card>
       </div>
     </div>

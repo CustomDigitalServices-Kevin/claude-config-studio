@@ -1,6 +1,7 @@
 import { useState } from "react";
-import type { GeneratedFile } from "../types";
+import type { Answers, GeneratedFile } from "../types";
 import { downloadZip } from "../lib/zip";
+import { buildManifest } from "../lib/manifest";
 import { slugify } from "../generator/text";
 import { Badge, cn } from "./primitives";
 
@@ -8,7 +9,15 @@ function langBadge(lang: GeneratedFile["lang"]): string {
   return lang === "json" ? "json" : lang === "bash" ? "sh" : lang === "markdown" ? "md" : "txt";
 }
 
-export function Preview({ files, projectName }: { files: GeneratedFile[]; projectName: string }) {
+export function Preview({
+  files,
+  projectName,
+  answers,
+}: {
+  files: GeneratedFile[];
+  projectName: string;
+  answers: Answers;
+}) {
   const [selectedPath, setSelectedPath] = useState<string>(files[0]?.path ?? "");
   const [building, setBuilding] = useState(false);
 
@@ -25,7 +34,7 @@ export function Preview({ files, projectName }: { files: GeneratedFile[]; projec
   async function onDownload() {
     setBuilding(true);
     try {
-      await downloadZip(files, `${slugify(projectName)}-claude-config.zip`);
+      await downloadZip(files, `${slugify(projectName)}-claude-config.zip`, buildManifest(answers));
     } finally {
       setBuilding(false);
     }

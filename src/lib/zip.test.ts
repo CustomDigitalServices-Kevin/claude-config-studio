@@ -71,4 +71,28 @@ describe("buildZipBlob — pipeline ZIP", () => {
     expect(settings).toBeDefined();
     expect(() => JSON.parse(settings ?? "")).not.toThrow();
   });
+
+  it("insere le manifeste config-studio.json a la racine quand il est fourni", async () => {
+    const files = buildConfig(answers);
+    const manifest = JSON.stringify({ version: 1, generator: "claude-config-studio", answers });
+    const blob = await buildZipBlob(files, manifest);
+
+    const buffer = await blobToArrayBuffer(blob);
+    const loaded = await JSZip.loadAsync(buffer);
+    expect(Object.keys(loaded.files)).toContain("config-studio.json");
+
+    const roundtrip = await loaded.file("config-studio.json")?.async("string");
+    expect(JSON.parse(roundtrip ?? "")).toEqual({
+      version: 1,
+      generator: "claude-config-studio",
+      answers,
+    });
+  });
+
+  it("sans manifeste : aucun config-studio.json dans le ZIP", async () => {
+    const files = buildConfig(answers);
+    const blob = await buildZipBlob(files);
+    const loaded = await JSZip.loadAsync(await blobToArrayBuffer(blob));
+    expect(Object.keys(loaded.files)).not.toContain("config-studio.json");
+  });
 });
