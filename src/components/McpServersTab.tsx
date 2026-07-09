@@ -2,6 +2,7 @@ import { MCP_SERVERS, MCP_CATEGORIES, MCP_INTRO, type McpServer } from "../data/
 import { relevantMcpCategories } from "../data/relevance";
 import { pick, type Language, type ProfileId } from "../types";
 import { Badge, CatalogCard, ExternalLink } from "./primitives";
+import { VerifiedBadge } from "./VerifiedBadge";
 
 const T = {
   fr: {
@@ -52,8 +53,9 @@ function ServerCard({ s, lang }: { s: McpServer; lang: Language }) {
           {pick(s.note, lang)}
         </p>
       )}
-      <div className="mt-3 border-t border-ink-800 pt-2 text-xs">
+      <div className="mt-3 flex items-center justify-between gap-3 border-t border-ink-800 pt-2 text-xs">
         <ExternalLink href={s.source}>{s.source}</ExternalLink>
+        <VerifiedBadge verifiedAt={s.verifiedAt} lang={lang} />
       </div>
     </CatalogCard>
   );

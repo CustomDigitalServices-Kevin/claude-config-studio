@@ -3,6 +3,7 @@ import { GENERAL_MARKETPLACES, MARKETPLACE_TOPICS } from "../data/generalMarketp
 import { relevantMarketplaceTopics } from "../data/relevance";
 import { pick, type Language, type ProfileId } from "../types";
 import { Badge, CatalogCard, ExternalLink } from "./primitives";
+import { VerifiedBadge } from "./VerifiedBadge";
 
 const T = {
   fr: {
@@ -148,8 +149,9 @@ export function MarketplacesTab({ lang, profiles }: { lang: Language; profiles: 
             </div>
           )}
 
-          <div className="border-t border-ink-700 px-4 py-2 text-xs">
+          <div className="flex items-center justify-between gap-3 border-t border-ink-700 px-4 py-2 text-xs">
             <ExternalLink href={m.source}>{m.source}</ExternalLink>
+            <VerifiedBadge verifiedAt={m.verifiedAt} lang={lang} />
           </div>
         </CatalogCard>
       ))}

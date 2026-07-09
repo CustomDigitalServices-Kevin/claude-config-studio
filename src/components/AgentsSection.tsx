@@ -7,6 +7,7 @@ import {
   agentCategoriesInOrder,
 } from "../data/agents";
 import { SectionLabel, SelectableRow, Badge, ExternalLink, cn } from "./primitives";
+import { VerifiedBadge } from "./VerifiedBadge";
 import { toggle, type SectionProps } from "./sectionShared";
 
 export function AgentsSection({ answers: a, setAnswers: setA, lang }: SectionProps) {
@@ -61,6 +62,7 @@ export function AgentsSection({ answers: a, setAnswers: setA, lang }: SectionPro
                           <code className="mt-0.5 block truncate text-[11px] text-ink-500">
                             {x.install}
                           </code>
+                          <VerifiedBadge verifiedAt={x.verifiedAt} lang={lang} />
                         </span>
                       </button>
                       <ExternalLink href={x.source}>src</ExternalLink>
