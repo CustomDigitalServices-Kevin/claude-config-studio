@@ -157,6 +157,12 @@ export interface Answers {
   toolRules: string[];
   /** Valeurs des parametres de regles/outils, cle = `${ownerId}.${optionId}`. */
   ruleOptions: Record<string, string | number | boolean>;
+  /**
+   * Deporte les garde-fous PROCEDURAUX coches vers `.claude/skills/<id>/SKILL.md` (charges a la
+   * demande) au lieu de leur corps inline dans CLAUDE.md. Les regles 0 (core0) restent TOUJOURS
+   * inline. Seules les regles marquees `skillable` sont concernees. Defaut false = sortie inchangee.
+   */
+  rulesAsSkills: boolean;
   memoryNote: string;
   /** Reglages avances ecrits dans settings.json. */
   advanced: AdvancedSettings;
@@ -256,6 +262,7 @@ export const answersSchema: z.ZodType<Answers> = z.object({
   mcpServers: z.array(z.string()),
   toolRules: z.array(z.string()),
   ruleOptions: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
+  rulesAsSkills: z.boolean(),
   memoryNote: z.string(),
   advanced: z.object({
     model: z.enum(["", "opus", "sonnet", "haiku"]),

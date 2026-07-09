@@ -28,6 +28,7 @@ export function initialAnswers(): Answers {
     mcpServers: [],
     toolRules: [],
     ruleOptions: {},
+    rulesAsSkills: false,
     memoryNote: "",
     advanced: {
       model: "",

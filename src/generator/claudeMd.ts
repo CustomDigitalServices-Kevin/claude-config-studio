@@ -17,6 +17,12 @@ export interface ClaudeMdContext {
   inlineRules: RuleModule[];
   scopedRuleIds: RuleId[];
   overflowRuleIds: RuleId[];
+  /**
+   * Règles procédurales déportées vers `.claude/skills/<id>/` : rendues comme une ligne de
+   * référence dans la section garde-fous au lieu de leur corps inline. Vide (défaut) => aucune
+   * référence, sortie inchangée.
+   */
+  skillRuleIds?: RuleId[];
   /** Section "connexions outils" (couche primaire uniquement), vide sinon. */
   toolsSection?: string;
   /** Couche racine : émet la section Hiérarchie (si secteurs) + la directive INITIALIZE. */
@@ -201,14 +207,38 @@ function renderRuleInline(rule: RuleModule, a: Answers): string {
   return `### ${pick(rule.title, a.language)}\n\n${body}`;
 }
 
-function rulesSection(a: Answers, inlineRules: RuleModule[]): string {
-  if (inlineRules.length === 0) {
+/**
+ * Ligne de référence d'une règle déportée en skill : le corps procédural complet vit dans
+ * `.claude/skills/<id>/SKILL.md` (chargé à la demande), CLAUDE.md n'en garde qu'un pointeur.
+ */
+function skillReferenceBlock(a: Answers, skillRuleIds: RuleId[]): string {
+  const fr = a.language === "fr";
+  const intro = fr
+    ? "**Garde-fous procéduraux déportés en skills** (chargés à la demande) :"
+    : "**Procedural guardrails offloaded to skills** (loaded on demand):";
+  const lines = skillRuleIds.map((id) => {
+    const title = pick(ruleById(id).title, a.language);
+    return fr
+      ? `- Règle ${title} : procédure détaillée dans \`.claude/skills/${id}/\` (chargée à la demande).`
+      : `- ${title} rule: detailed procedure in \`.claude/skills/${id}/\` (loaded on demand).`;
+  });
+  return [intro, ...lines].join("\n");
+}
+
+function rulesSection(a: Answers, inlineRules: RuleModule[], skillRuleIds: RuleId[]): string {
+  if (inlineRules.length === 0 && skillRuleIds.length === 0) {
     return "";
   }
   const fr = a.language === "fr";
   const header = `## ${fr ? "Garde-fous (règles 0)" : "Guardrails (rule zero)"}`;
-  const blocks = inlineRules.map((r) => renderRuleInline(r, a));
-  return [header, "", blocks.join("\n\n")].join("\n");
+  const parts: string[] = [header];
+  if (inlineRules.length > 0) {
+    parts.push(inlineRules.map((r) => renderRuleInline(r, a)).join("\n\n"));
+  }
+  if (skillRuleIds.length > 0) {
+    parts.push(skillReferenceBlock(a, skillRuleIds));
+  }
+  return parts.join("\n\n");
 }
 
 function notesSection(a: Answers, ctx: ClaudeMdContext): string {
@@ -258,7 +288,7 @@ export function generateClaudeMd(a: Answers, ctx: ClaudeMdContext): string {
     stackSection(a),
     showHierarchy ? hierarchySection(a) : "",
     showInitialize ? initializeDirective(a) : "",
-    rulesSection(a, ctx.inlineRules),
+    rulesSection(a, ctx.inlineRules, ctx.skillRuleIds ?? []),
     ctx.toolsSection ?? "",
     notesSection(a, ctx),
   ];
@@ -287,5 +317,36 @@ export function generateRuleFile(ruleId: RuleId, a: Answers): string {
         ? "\n\n> Déportée depuis CLAUDE.md pour garder ce dernier sous 200 lignes."
         : "\n\n> Offloaded from CLAUDE.md to keep it under 200 lines.";
 
+  return `${front.join("\n")}\n\n${body}${note}\n`;
+}
+
+/**
+ * Génère un `.claude/skills/<id>/SKILL.md` pour une règle procédurale déportée.
+ *
+ * Format vérifié sur la doc officielle https://code.claude.com/docs/en/skills (2026-07-09) :
+ *  - Emplacement projet : `.claude/skills/<skill-name>/SKILL.md` (portée « This project only ») ;
+ *    le nom de commande dérive du NOM DE DOSSIER (ici l'id de règle, kebab-case sûr), pas du
+ *    frontmatter.
+ *  - Frontmatter YAML entre `---` : tous les champs sont optionnels ; seul `description` est
+ *    recommandé (Claude s'en sert pour décider quand charger le skill). `name` est le libellé
+ *    d'affichage (par défaut le nom du dossier).
+ *  - Doctrine : une PROCÉDURE chargée à la demande va dans un skill (corps chargé seulement à
+ *    l'usage), les faits/contraintes permanents restent dans CLAUDE.md.
+ * On émet `name` + `description` (résumé 1 ligne de la règle), puis le corps procédural complet,
+ * avec les paramètres de la règle appliqués via le même `applyOptions` que le rendu inline.
+ */
+export function generateSkillFile(ruleId: RuleId, a: Answers): string {
+  const rule = ruleById(ruleId);
+  const fr = a.language === "fr";
+  const front = [
+    "---",
+    `name: ${pick(rule.title, a.language)}`,
+    `description: ${pick(rule.summary, a.language)}`,
+    "---",
+  ];
+  const body = renderRuleInline(rule, a).replace(/^### /, "## ");
+  const note = fr
+    ? "\n\n> Procédure chargée à la demande (skill). La contrainte reste rappelée en une ligne dans le CLAUDE.md."
+    : "\n\n> Procedure loaded on demand (skill). The rule stays referenced in one line in CLAUDE.md.";
   return `${front.join("\n")}\n\n${body}${note}\n`;
 }
