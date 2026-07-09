@@ -17,10 +17,9 @@ export function HooksSection({ answers: a, setAnswers: setA }: SectionProps) {
           color: "oklch(0.82 0.05 75)",
         }}
       >
-        Liste volontairement limitée à trois hooks cross-platform sûrs. Un hook bash livré à un
-        utilisateur Windows casse silencieusement : la protection clé (blocage des commandes
-        destructrices) est déjà couverte de manière déclarative par les permissions deny, sans
-        dépendance à un shell.
+        Liste volontairement limitée à des hooks sûrs et vérifiés. Un hook shell livré à un
+        utilisateur Windows peut casser silencieusement : le deny déclaratif des permissions couvre
+        déjà les commandes destructrices, sans dépendance à un shell.
       </div>
 
       <div className="space-y-1.5">
