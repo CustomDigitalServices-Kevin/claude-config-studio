@@ -13,6 +13,8 @@ export type ToolCategoryId = "knowledge" | "orchestration" | "cost" | "repo" | "
 
 export interface CompanionTool {
   id: string;
+  /** Date ISO (AAAA-MM-JJ) de la derniere verification de la source (audit fraicheur). */
+  verifiedAt?: string;
   name: string;
   category: ToolCategoryId;
   connectKind: ConnectKind;
@@ -49,7 +51,10 @@ export const CONNECT_KIND_LABELS: Record<ConnectKind, Localized> = {
 
 export const TOOL_CATEGORIES: ReadonlyArray<{ id: ToolCategoryId; label: Localized }> = [
   { id: "knowledge", label: { fr: "Connaissances / Mémoire", en: "Knowledge / Memory" } },
-  { id: "orchestration", label: { fr: "Orchestration / Multi-agent", en: "Orchestration / Multi-agent" } },
+  {
+    id: "orchestration",
+    label: { fr: "Orchestration / Multi-agent", en: "Orchestration / Multi-agent" },
+  },
   { id: "spec", label: { fr: "Spec / Planning / Setup", en: "Spec / Planning / Setup" } },
   { id: "repo", label: { fr: "Contexte dépôt", en: "Repo context" } },
   { id: "cost", label: { fr: "Coût / Usage", en: "Cost / Usage" } },
@@ -58,6 +63,7 @@ export const TOOL_CATEGORIES: ReadonlyArray<{ id: ToolCategoryId; label: Localiz
 export const COMPANION_TOOLS: readonly CompanionTool[] = [
   {
     id: "obsidian",
+    verifiedAt: "2026-07-09",
     name: "Obsidian",
     category: "knowledge",
     connectKind: "filesystem",
@@ -105,7 +111,10 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
           min: 7,
           max: 180,
           step: 1,
-          label: { fr: "Re-vérifier l'info au-delà de N jours", en: "Re-verify info beyond N days" },
+          label: {
+            fr: "Re-vérifier l'info au-delà de N jours",
+            en: "Re-verify info beyond N days",
+          },
           hint: {
             fr: "Délai après lequel une info du vault sur un sujet à évolution rapide doit être re-vérifiée (recherche web).",
             en: "Delay after which vault info on a fast-moving topic must be re-verified (web search).",
@@ -131,6 +140,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "notebooklm",
+    verifiedAt: "2026-07-09",
     name: "NotebookLM (Google)",
     category: "knowledge",
     connectKind: "manual",
@@ -170,6 +180,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "claude-squad",
+    verifiedAt: "2026-07-09",
     name: "claude-squad",
     category: "orchestration",
     connectKind: "cli",
@@ -202,6 +213,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "superclaude",
+    verifiedAt: "2026-07-09",
     name: "SuperClaude framework",
     category: "orchestration",
     connectKind: "filesystem",
@@ -234,6 +246,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "task-master",
+    verifiedAt: "2026-07-09",
     name: "task-master-ai",
     category: "spec",
     connectKind: "cli",
@@ -293,6 +306,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "spec-kit",
+    verifiedAt: "2026-07-09",
     name: "GitHub Spec Kit",
     category: "spec",
     connectKind: "cli",
@@ -332,6 +346,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "claude-code-templates",
+    verifiedAt: "2026-07-09",
     name: "claude-code-templates (aitmpl)",
     category: "spec",
     connectKind: "cli",
@@ -364,6 +379,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "repomix",
+    verifiedAt: "2026-07-09",
     name: "repomix",
     category: "repo",
     connectKind: "cli",
@@ -403,6 +419,7 @@ export const COMPANION_TOOLS: readonly CompanionTool[] = [
   },
   {
     id: "ccusage",
+    verifiedAt: "2026-07-09",
     name: "ccusage",
     category: "cost",
     connectKind: "cli",

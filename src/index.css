@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* Manrope self-host (variable, subset latin). public/ est copie tel quel a la racine dist :
+   avec un deploiement en racine de domaine, le chemin absolu /fonts/... resout. */
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope-variable.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* CSS-first config Tailwind v4 (https://tailwindcss.com/docs/theme) */
 @theme {
   --color-ink-950: #0b0b0c;
@@ -8,9 +18,11 @@
   --color-ink-800: #1c1c21;
   --color-ink-700: #2a2a31;
   --color-ink-600: #3a3a44;
+  --color-ink-500: #62626f;
   --color-ink-400: #8a8a99;
   --color-ink-300: #b4b4c0;
   --color-ink-200: #d8d8e0;
+  --color-ink-100: #f4f4f8;
 
   --color-clay-300: #efb9a3;
   --color-clay-400: #e89b7e;
@@ -20,10 +32,8 @@
   --color-moss-500: #4f9d6b;
   --color-amber-flag: #d9a441;
 
-  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", "Menlo",
-    "Consolas", monospace;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
 }
 
 html,

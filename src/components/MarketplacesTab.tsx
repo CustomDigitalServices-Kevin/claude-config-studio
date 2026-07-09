@@ -1,12 +1,9 @@
-import {
-  MARKETPLACES,
-  MARKETPLACE_KIND_LABELS,
-  INSTALL_MECHANICS,
-} from "../data/marketplaces";
+import { MARKETPLACES, MARKETPLACE_KIND_LABELS, INSTALL_MECHANICS } from "../data/marketplaces";
 import { GENERAL_MARKETPLACES, MARKETPLACE_TOPICS } from "../data/generalMarketplaces";
 import { relevantMarketplaceTopics } from "../data/relevance";
 import { pick, type Language, type ProfileId } from "../types";
 import { Badge, CatalogCard, ExternalLink } from "./primitives";
+import { VerifiedBadge } from "./VerifiedBadge";
 
 const T = {
   fr: {
@@ -45,13 +42,7 @@ function CodeLine({ children }: { children: string }) {
   );
 }
 
-export function MarketplacesTab({
-  lang,
-  profiles,
-}: {
-  lang: Language;
-  profiles: ProfileId[];
-}) {
+export function MarketplacesTab({ lang, profiles }: { lang: Language; profiles: ProfileId[] }) {
   const t = T[lang];
   const relevant = relevantMarketplaceTopics(profiles);
   const topics = [...MARKETPLACE_TOPICS].sort(
@@ -146,7 +137,9 @@ export function MarketplacesTab({
                       <td className="px-4 py-2.5 font-mono text-[12px] text-clay-300">{p.name}</td>
                       <td className="px-4 py-2.5 text-ink-200">
                         {pick(p.what, lang)}
-                        <span className="mt-0.5 block text-xs text-ink-400">{pick(p.purpose, lang)}</span>
+                        <span className="mt-0.5 block text-xs text-ink-400">
+                          {pick(p.purpose, lang)}
+                        </span>
                       </td>
                       <td className="px-4 py-2.5 text-ink-300">{pick(p.whenToUse, lang)}</td>
                     </tr>
@@ -156,8 +149,9 @@ export function MarketplacesTab({
             </div>
           )}
 
-          <div className="border-t border-ink-700 px-4 py-2 text-xs">
+          <div className="flex items-center justify-between gap-3 border-t border-ink-700 px-4 py-2 text-xs">
             <ExternalLink href={m.source}>{m.source}</ExternalLink>
+            <VerifiedBadge verifiedAt={m.verifiedAt} lang={lang} />
           </div>
         </CatalogCard>
       ))}

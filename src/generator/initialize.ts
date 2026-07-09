@@ -52,7 +52,9 @@ function toolsBlock(fr: boolean): string {
     `## ${fr ? "Outils / MCP à connecter" : "Tools / MCP to connect"}`,
     "",
     quote([
-      fr ? "Idempotence : sauter les outils déjà connectés." : "Idempotence: skip already-connected tools.",
+      fr
+        ? "Idempotence : sauter les outils déjà connectés."
+        : "Idempotence: skip already-connected tools.",
     ]),
     "",
     fr

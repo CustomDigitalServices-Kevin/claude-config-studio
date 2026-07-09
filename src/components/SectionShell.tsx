@@ -30,7 +30,9 @@ export function SectionShell({
     >
       <div
         className="pointer-events-none absolute -left-8 -top-16 h-[140px] w-[240px]"
-        style={{ background: "radial-gradient(closest-side, oklch(0.78 0.15 70 / 0.13), transparent 75%)" }}
+        style={{
+          background: "radial-gradient(closest-side, oklch(0.78 0.15 70 / 0.13), transparent 75%)",
+        }}
       />
       <div className="relative flex items-center gap-3">
         <div
@@ -45,7 +47,10 @@ export function SectionShell({
           {index}
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <h2 className="text-[17px] font-extrabold tracking-tight" style={{ color: "oklch(0.97 0.004 75)" }}>
+          <h2
+            className="text-[17px] font-extrabold tracking-tight"
+            style={{ color: "oklch(0.97 0.004 75)" }}
+          >
             {title}
           </h2>
           <p className="text-[12.5px] font-medium" style={{ color: "oklch(0.62 0.012 75)" }}>
@@ -57,7 +62,9 @@ export function SectionShell({
 
       <div
         className="my-[22px] h-px"
-        style={{ background: "linear-gradient(90deg, oklch(0.34 0.008 65), oklch(0.34 0.008 65 / 0))" }}
+        style={{
+          background: "linear-gradient(90deg, oklch(0.34 0.008 65), oklch(0.34 0.008 65 / 0))",
+        }}
       />
 
       {children}

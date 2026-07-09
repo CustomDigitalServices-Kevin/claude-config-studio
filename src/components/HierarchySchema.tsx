@@ -1,10 +1,14 @@
 import type { ReactNode } from "react";
+import type { Language } from "../types";
+import { pick } from "../types";
+import { CHROME } from "../i18n/chrome";
 
 /**
  * Schema pedagogique STATIQUE (D24) : illustre la profondeur d'une arborescence .claude
  * sur 3 niveaux (Racine / Secteur / Projet). Conversion fidele du design
  * "Arborescence 3 Niveaux" (DesignSync a814a862), theme ambre dark. Contenu fixe et volontaire :
  * il explique le concept, il ne reflete pas la selection en cours (choix advisor 2026-07-01).
+ * Le CHROME (titres, descriptions, badges) suit le toggle header via `lang`.
  */
 
 const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
@@ -59,7 +63,7 @@ function Branch({ children, last }: { children: ReactNode; last?: boolean }) {
   );
 }
 
-function RootNode() {
+function RootNode({ lang }: { lang: Language }) {
   return (
     <div
       style={{
@@ -98,20 +102,32 @@ function RootNode() {
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <span style={{ fontWeight: 700, fontSize: 18, color: "#fbf5ec", letterSpacing: "-0.01em" }}>
-            Configuration racine
+          <span
+            style={{ fontWeight: 700, fontSize: 18, color: "#fbf5ec", letterSpacing: "-0.01em" }}
+          >
+            {pick(CHROME.hierarchy.rootTitle, lang)}
           </span>
-          <LevelBadge text="Niveau 0" tone="root" />
+          <LevelBadge text={pick(CHROME.hierarchy.level0, lang)} tone="root" />
         </div>
         <div style={{ fontSize: 12.5, color: "#b7ac9b", marginTop: 3 }}>
-          Le contenant global : règles transverses à tous les projets
+          {pick(CHROME.hierarchy.rootDesc, lang)}
         </div>
       </div>
     </div>
   );
 }
 
-function SectorNode({ name, children, last }: { name: string; children: ReactNode; last?: boolean }) {
+function SectorNode({
+  name,
+  lang,
+  children,
+  last,
+}: {
+  name: string;
+  lang: Language;
+  children: ReactNode;
+  last?: boolean;
+}) {
   return (
     <Branch last={last}>
       <div
@@ -157,21 +173,29 @@ function SectorNode({ name, children, last }: { name: string; children: ReactNod
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span style={{ fontWeight: 600, fontSize: 15.5, color: "#f2ebde" }}>{name}</span>
-            <LevelBadge text="Niveau 1" tone="sector" />
+            <LevelBadge text={pick(CHROME.hierarchy.level1, lang)} tone="sector" />
           </div>
           <div style={{ fontSize: 12, color: "#a49a89", marginTop: 2 }}>
-            Un secteur : regroupe les projets du meme domaine
+            {pick(CHROME.hierarchy.sectorDesc, lang)}
           </div>
         </div>
       </div>
-      <div style={{ marginLeft: 20, paddingLeft: 28, borderLeft: "2px solid #2b2620", marginTop: 6, paddingTop: 6 }}>
+      <div
+        style={{
+          marginLeft: 20,
+          paddingLeft: 28,
+          borderLeft: "2px solid #2b2620",
+          marginTop: 6,
+          paddingTop: 6,
+        }}
+      >
         {children}
       </div>
     </Branch>
   );
 }
 
-function ProjectNode({ name, last }: { name: string; last?: boolean }) {
+function ProjectNode({ name, lang, last }: { name: string; lang: Language; last?: boolean }) {
   return (
     <Branch last={last}>
       <div
@@ -206,19 +230,41 @@ function ProjectNode({ name, last }: { name: string; last?: boolean }) {
               strokeWidth="1.4"
               strokeLinejoin="round"
             />
-            <path d="M13 3.5V8.5A0.5 0.5 0 0 0 13.5 9H18.5" stroke="#8f877a" strokeWidth="1.4" strokeLinejoin="round" />
+            <path
+              d="M13 3.5V8.5A0.5 0.5 0 0 0 13.5 9H18.5"
+              stroke="#8f877a"
+              strokeWidth="1.4"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
         <span style={{ flex: 1, fontSize: 13.5, fontWeight: 500, color: "#d9d1c3" }}>{name}</span>
-        <LevelBadge text="Niveau 2" tone="project" />
+        <LevelBadge text={pick(CHROME.hierarchy.level2, lang)} tone="project" />
       </div>
     </Branch>
   );
 }
 
-function LegendRow({ swatch, title, color, desc }: { swatch: ReactNode; title: string; color: string; desc: string }) {
+function LegendRow({
+  swatch,
+  title,
+  color,
+  desc,
+}: {
+  swatch: ReactNode;
+  title: string;
+  color: string;
+  desc: string;
+}) {
   return (
-    <div style={{ display: "flex", gap: 12, padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+    <div
+      style={{
+        display: "flex",
+        gap: 12,
+        padding: "14px 0",
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+      }}
+    >
       <div style={{ flex: "none", marginTop: 3 }}>{swatch}</div>
       <div>
         <div style={{ fontWeight: 600, fontSize: 13, color, marginBottom: 3 }}>{title}</div>
@@ -228,30 +274,62 @@ function LegendRow({ swatch, title, color, desc }: { swatch: ReactNode; title: s
   );
 }
 
-export function HierarchySchema() {
+export function HierarchySchema({ lang }: { lang: Language }) {
   return (
     <div
       style={{
-        background: "radial-gradient(700px 340px at 16% -20%, #24201a 0%, #17140f 62%, #131009 100%)",
+        background:
+          "radial-gradient(700px 340px at 16% -20%, #24201a 0%, #17140f 62%, #131009 100%)",
         border: "1px solid rgba(255,255,255,0.06)",
         borderRadius: 20,
         padding: "26px 26px 30px",
       }}
     >
       <div style={{ marginBottom: 22 }}>
-        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "#e2a355", marginBottom: 10 }}>
-          Arborescence · 3 niveaux de profondeur
+        <div
+          style={{
+            fontFamily: MONO,
+            fontSize: 11,
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: "#e2a355",
+            marginBottom: 10,
+          }}
+        >
+          {pick(CHROME.hierarchy.eyebrow, lang)}
         </div>
-        <div style={{ fontWeight: 700, fontSize: 20, lineHeight: 1.2, color: "#f6f1e8", letterSpacing: "-0.01em" }}>
-          Comprendre la profondeur d'un .claude
+        <div
+          style={{
+            fontWeight: 700,
+            fontSize: 20,
+            lineHeight: 1.2,
+            color: "#f6f1e8",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {pick(CHROME.hierarchy.title, lang)}
         </div>
-        <p style={{ margin: "8px 0 0", maxWidth: 520, fontSize: 13, lineHeight: 1.55, color: "#a79f92" }}>
-          Chaque niveau descend d'un cran : le contenant global, puis le secteur, puis le projet précis. Plus on descend,
-          plus l'objet devient spécifique et hérite des niveaux au-dessus.
+        <p
+          style={{
+            margin: "8px 0 0",
+            maxWidth: 520,
+            fontSize: 13,
+            lineHeight: 1.55,
+            color: "#a79f92",
+          }}
+        >
+          {pick(CHROME.hierarchy.intro, lang)}
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 244px", gap: 26, alignItems: "start" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(0,1fr) 244px",
+          gap: 26,
+          alignItems: "start",
+        }}
+      >
         {/* Arbre */}
         <div
           style={{
@@ -262,43 +340,99 @@ export function HierarchySchema() {
             boxShadow: "0 30px 70px -40px rgba(0,0,0,0.7)",
           }}
         >
-          <RootNode />
-          <div style={{ marginLeft: 22, paddingLeft: 30, borderLeft: "2px solid #322c24", marginTop: 6, paddingTop: 8 }}>
-            <SectorNode name="Web">
-              <ProjectNode name="portail-client" />
-              <ProjectNode name="site-vitrine" last />
+          <RootNode lang={lang} />
+          <div
+            style={{
+              marginLeft: 22,
+              paddingLeft: 30,
+              borderLeft: "2px solid #322c24",
+              marginTop: 6,
+              paddingTop: 8,
+            }}
+          >
+            <SectorNode name="Web" lang={lang}>
+              <ProjectNode name="portail-client" lang={lang} />
+              <ProjectNode name="site-vitrine" lang={lang} last />
             </SectorNode>
-            <SectorNode name="Data / ML" last>
-              <ProjectNode name="modele-churn" last />
+            <SectorNode name="Data / ML" lang={lang} last>
+              <ProjectNode name="modele-churn" lang={lang} last />
             </SectorNode>
           </div>
         </div>
 
         {/* Legende */}
-        <div style={{ background: "#1b1712", border: "1px solid rgba(255,255,255,0.055)", borderRadius: 18, padding: "22px 20px 24px" }}>
-          <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.2em", textTransform: "uppercase", color: "#8a8171", marginBottom: 8 }}>
-            Le rôle de chaque niveau
+        <div
+          style={{
+            background: "#1b1712",
+            border: "1px solid rgba(255,255,255,0.055)",
+            borderRadius: 18,
+            padding: "22px 20px 24px",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: MONO,
+              fontSize: 10.5,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "#8a8171",
+              marginBottom: 8,
+            }}
+          >
+            {pick(CHROME.hierarchy.legendTitle, lang)}
           </div>
           <LegendRow
-            title="Niveau 0 - Racine"
+            title={pick(CHROME.hierarchy.legend0Title, lang)}
             color="#f4b968"
-            desc="Le contenant global : un seul .claude qui porte les règles transverses."
-            swatch={<span style={{ display: "block", width: 12, height: 12, borderRadius: 4, background: "linear-gradient(140deg,#f2b25f,#d0842f)" }} />}
+            desc={pick(CHROME.hierarchy.legend0Desc, lang)}
+            swatch={
+              <span
+                style={{
+                  display: "block",
+                  width: 12,
+                  height: 12,
+                  borderRadius: 4,
+                  background: "linear-gradient(140deg,#f2b25f,#d0842f)",
+                }}
+              />
+            }
           />
           <LegendRow
-            title="Niveau 1 - Secteur"
+            title={pick(CHROME.hierarchy.legend1Title, lang)}
             color="#e6c07a"
-            desc="Le domaine : il regroupe les projets qui se ressemblent (Web, Data...)."
-            swatch={<span style={{ display: "block", width: 12, height: 12, borderRadius: 4, background: "rgba(224,178,96,0.6)", border: "1px solid rgba(224,178,96,0.5)" }} />}
+            desc={pick(CHROME.hierarchy.legend1Desc, lang)}
+            swatch={
+              <span
+                style={{
+                  display: "block",
+                  width: 12,
+                  height: 12,
+                  borderRadius: 4,
+                  background: "rgba(224,178,96,0.6)",
+                  border: "1px solid rgba(224,178,96,0.5)",
+                }}
+              />
+            }
           />
           <div style={{ display: "flex", gap: 12, paddingTop: 14 }}>
             <div style={{ flex: "none", marginTop: 3 }}>
-              <span style={{ display: "block", width: 12, height: 12, borderRadius: 4, background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.25)" }} />
+              <span
+                style={{
+                  display: "block",
+                  width: 12,
+                  height: 12,
+                  borderRadius: 4,
+                  background: "rgba(255,255,255,0.18)",
+                  border: "1px solid rgba(255,255,255,0.25)",
+                }}
+              />
             </div>
             <div>
-              <div style={{ fontWeight: 600, fontSize: 13, color: "#cfc7ba", marginBottom: 3 }}>Niveau 2 - Projet</div>
+              <div style={{ fontWeight: 600, fontSize: 13, color: "#cfc7ba", marginBottom: 3 }}>
+                {pick(CHROME.hierarchy.legend2Title, lang)}
+              </div>
               <div style={{ fontSize: 12, lineHeight: 1.5, color: "#a79f92" }}>
-                Le .claude precis d'un projet, au bout du chemin. Herite de tout au-dessus.
+                {pick(CHROME.hierarchy.legend2Desc, lang)}
               </div>
             </div>
           </div>

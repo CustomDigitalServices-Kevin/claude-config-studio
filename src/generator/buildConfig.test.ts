@@ -32,11 +32,24 @@ function makeAnswers(over: Partial<Answers> = {}): Answers {
     tools: [],
     skills: [],
     agents: [],
+    mcpServers: [],
     toolRules: [],
     ruleOptions: {},
     memoryNote: "",
-    advanced: { model: "", autoMemory: true, outputStyle: "", permissionMode: "" },
-    workflow: { defaultBehavior: "act", advisor: { enabled: false, model: "" }, orchestration: false },
+    advanced: {
+      model: "",
+      autoMemory: true,
+      outputStyle: "",
+      permissionMode: "",
+      fallbackModel: "",
+      responseLanguage: "",
+      attribution: "",
+    },
+    workflow: {
+      defaultBehavior: "act",
+      advisor: { enabled: false, model: "" },
+      orchestration: false,
+    },
     ...over,
   };
 }
@@ -85,17 +98,19 @@ describe("buildConfig — conformite par profil", () => {
       // chaque CLAUDE.md sous le plafond
       for (const md of claudeMdFiles(files)) {
         const lines = md.content.split("\n").length;
-        expect(lines, `${md.path} depasse ${MAX_CLAUDE_MD_LINES} lignes (${lines})`).toBeLessThanOrEqual(
-          MAX_CLAUDE_MD_LINES,
-        );
+        expect(
+          lines,
+          `${md.path} depasse ${MAX_CLAUDE_MD_LINES} lignes (${lines})`,
+        ).toBeLessThanOrEqual(MAX_CLAUDE_MD_LINES);
       }
 
       // zero fuite identite (case-insensitive)
       const text = allText(files).toLowerCase();
       for (const token of FORBIDDEN_TOKENS) {
-        expect(text.includes(token.toLowerCase()), `fuite identite "${token}" dans ${profile}`).toBe(
-          false,
-        );
+        expect(
+          text.includes(token.toLowerCase()),
+          `fuite identite "${token}" dans ${profile}`,
+        ).toBe(false);
       }
     });
   }
@@ -156,13 +171,71 @@ describe("buildConfig — settings garde-fous", () => {
   });
 
   it("profil audit : deny git destructifs + directive lecture seule", () => {
-    const files = buildConfig(makeAnswers({ profiles: ["audit"], rules: defaultRulesForProfile("audit") }));
+    const files = buildConfig(
+      makeAnswers({ profiles: ["audit"], rules: defaultRulesForProfile("audit") }),
+    );
     const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
       permissions?: { deny?: string[] };
     };
     expect(settings.permissions?.deny).toContain("Bash(git push --force*)");
     const md = claudeMdFiles(files)[0]!.content;
     expect(md.toLowerCase()).toContain("lecture seule");
+  });
+});
+
+describe("buildConfig — deny durci (variantes contournables)", () => {
+  it("le deny inclut les variantes compactes curl|bash et wget", () => {
+    const files = buildConfig(makeAnswers());
+    const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
+      permissions?: { deny?: string[] };
+    };
+    const deny = settings.permissions?.deny ?? [];
+    for (const p of [
+      "Bash(curl *|bash)",
+      "Bash(curl *|sh)",
+      "Bash(wget -O- *)",
+      "Bash(wget *|bash)",
+      "Bash(wget *|sh)",
+    ]) {
+      expect(deny, `variante manquante: ${p}`).toContain(p);
+    }
+  });
+});
+
+describe("buildConfig — settings v2 (fallbackModel / language / attribution)", () => {
+  it("emet les cles v2 reglees et reste conforme au schema", () => {
+    const files = buildConfig(
+      makeAnswers({
+        advanced: {
+          model: "",
+          autoMemory: true,
+          outputStyle: "",
+          permissionMode: "",
+          fallbackModel: "sonnet",
+          responseLanguage: "french",
+          attribution: "none",
+        },
+      }),
+    );
+    const parsed = JSON.parse(settingsFiles(files)[0]!.content) as {
+      fallbackModel?: string[];
+      language?: string;
+      attribution?: { commit?: string; pr?: string };
+    };
+    expect(parsed.fallbackModel).toEqual(["sonnet"]);
+    expect(parsed.language).toBe("french");
+    expect(parsed.attribution).toEqual({ commit: "", pr: "" });
+    expect(settingsSchema.safeParse(parsed).success).toBe(true);
+  });
+
+  it("defauts : aucune cle v2 ecrite (settings minimal)", () => {
+    const parsed = JSON.parse(settingsFiles(buildConfig(makeAnswers()))[0]!.content) as Record<
+      string,
+      unknown
+    >;
+    expect("fallbackModel" in parsed).toBe(false);
+    expect("language" in parsed).toBe(false);
+    expect("attribution" in parsed).toBe(false);
   });
 });
 
@@ -267,6 +340,43 @@ describe("buildConfig — outils selectionnes", () => {
   });
 });
 
+describe("buildConfig — .mcp.json opt-in", () => {
+  function mcpFile(files: GeneratedFile[]): GeneratedFile | undefined {
+    return files.find((f) => f.path === ".mcp.json");
+  }
+
+  it("emet un .mcp.json au format officiel, filtre l'id inconnu", () => {
+    const files = buildConfig(
+      makeAnswers({ mcpServers: ["github", "context7", "totally-unknown-id"] }),
+    );
+    const mcp = mcpFile(files);
+    expect(mcp).toBeDefined();
+    const parsed = JSON.parse(mcp!.content) as { mcpServers: Record<string, unknown> };
+    expect(Object.keys(parsed.mcpServers).sort()).toEqual(["context7", "github"]);
+    expect(parsed.mcpServers.github).toEqual({
+      type: "http",
+      url: "https://api.githubcopilot.com/mcp/",
+    });
+  });
+
+  it("filtre les serveurs sans mcpJson (archivés)", () => {
+    // sqlite a un mcpJson vide -> ignoré ; github valide -> gardé
+    const files = buildConfig(makeAnswers({ mcpServers: ["sqlite", "github"] }));
+    const parsed = JSON.parse(mcpFile(files)!.content) as { mcpServers: Record<string, unknown> };
+    expect(Object.keys(parsed.mcpServers)).toEqual(["github"]);
+  });
+
+  it("aucun .mcp.json quand la sélection MCP est vide", () => {
+    const files = buildConfig(makeAnswers({ mcpServers: [] }));
+    expect(mcpFile(files)).toBeUndefined();
+  });
+
+  it("aucun .mcp.json quand seuls des ids inconnus sont sélectionnés", () => {
+    const files = buildConfig(makeAnswers({ mcpServers: ["nope-1", "nope-2"] }));
+    expect(mcpFile(files)).toBeUndefined();
+  });
+});
+
 describe("buildConfig — profondeur (depth)", () => {
   it("n0 : une seule couche racine, ni secteur ni projet", () => {
     const files = buildConfig(makeAnswers({ depth: "n0", sectors: ["web", "infra"] }));
@@ -305,7 +415,11 @@ describe("buildConfig — profondeur (depth)", () => {
     expect(paths).toContain("web/.claude/CLAUDE.md");
     // projet exemple sous le PREMIER secteur uniquement
     expect(paths).toContain("web/acme/.claude/CLAUDE.md");
-    expect(paths.some((p) => p.startsWith("infra/") && /\/[^/]+\/\.claude/.test(p.slice("infra/".length)))).toBe(false);
+    expect(
+      paths.some(
+        (p) => p.startsWith("infra/") && /\/[^/]+\/\.claude/.test(p.slice("infra/".length)),
+      ),
+    ).toBe(false);
   });
 
   it("edge case : depth n0n1 sans aucun secteur coche emet la racine seule sans planter", () => {
@@ -369,7 +483,9 @@ describe("buildConfig — skills", () => {
     expect(install).toContain("/plugin install document-skills@anthropic-agent-skills");
     expect(install).toContain("/plugin install claude-api@anthropic-agent-skills");
     // cct-cli dans le bloc terminal
-    expect(install).toContain("npx claude-code-templates@latest --skill development/code-reviewer --yes");
+    expect(install).toContain(
+      "npx claude-code-templates@latest --skill development/code-reviewer --yes",
+    );
   });
 
   it("aucun skill : pas de section skills dans INSTALL", () => {
@@ -387,7 +503,11 @@ describe("buildConfig — agents", () => {
     const install = installMd(
       buildConfig(
         makeAnswers({
-          agents: ["wshobson-backend-development", "wshobson-security-scanning", "cct-code-reviewer"],
+          agents: [
+            "wshobson-backend-development",
+            "wshobson-security-scanning",
+            "cct-code-reviewer",
+          ],
         }),
       ),
     );
@@ -428,6 +548,9 @@ describe("buildConfig — settings avances", () => {
           autoMemory: false,
           outputStyle: "Explanatory",
           permissionMode: "plan",
+          fallbackModel: "",
+          responseLanguage: "",
+          attribution: "",
         },
       }),
     );
@@ -552,11 +675,15 @@ describe("buildConfig — hygiene memoire", () => {
   });
 
   it("option datetime : date + heure par defaut, date seule si desactivee", () => {
-    const withTime = claudeMdFiles(buildConfig(makeAnswers({ rules: ["memory-hygiene"] })))[0]!.content;
+    const withTime = claudeMdFiles(buildConfig(makeAnswers({ rules: ["memory-hygiene"] })))[0]!
+      .content;
     expect(withTime).toContain("date + heure");
     const dateOnly = claudeMdFiles(
       buildConfig(
-        makeAnswers({ rules: ["memory-hygiene"], ruleOptions: { "memory-hygiene.datetime": false } }),
+        makeAnswers({
+          rules: ["memory-hygiene"],
+          ruleOptions: { "memory-hygiene.datetime": false },
+        }),
       ),
     )[0]!.content;
     expect(dateOnly).toContain("date seule");
@@ -584,7 +711,8 @@ describe("buildConfig — identite avancee", () => {
   });
 
   it("style de reponses concise injecte une directive de posture, aucun style = rien", () => {
-    const concise = claudeMdFiles(buildConfig(makeAnswers({ responseStyle: "concise" })))[0]!.content;
+    const concise = claudeMdFiles(buildConfig(makeAnswers({ responseStyle: "concise" })))[0]!
+      .content;
     expect(concise).toContain("Style de réponses");
     expect(concise.toLowerCase()).toContain("l'essentiel");
     const none = claudeMdFiles(buildConfig(makeAnswers({ responseStyle: "" })))[0]!.content;
@@ -594,7 +722,9 @@ describe("buildConfig — identite avancee", () => {
 
 describe("buildConfig — green flag parametrable", () => {
   it("defaut : icone coche + nom + token date runtime dans l'en-tete", () => {
-    const md = claudeMdFiles(buildConfig(makeAnswers({ rules: ["green-flag"], author: "Alex" })))[0]!.content;
+    const md = claudeMdFiles(
+      buildConfig(makeAnswers({ rules: ["green-flag"], author: "Alex" })),
+    )[0]!.content;
     expect(md).toContain("✅ Alex - <date du jour au format long> :");
     expect(md).not.toContain("{header}");
   });
@@ -606,7 +736,10 @@ describe("buildConfig — green flag parametrable", () => {
           rules: ["green-flag"],
           author: "Bob",
           projectName: "acme",
-          ruleOptions: { "green-flag.icon": "star", "green-flag.headerText": "{name} sur {project} :" },
+          ruleOptions: {
+            "green-flag.icon": "star",
+            "green-flag.headerText": "{name} sur {project} :",
+          },
         }),
       ),
     )[0]!.content;
@@ -635,7 +768,9 @@ describe("buildConfig — hooks lifecycle (sourcés)", () => {
     const files = buildConfig(
       makeAnswers({ hooks: ["prompt-guardrail", "session-end-reminder", "precompact-note"] }),
     );
-    const settings = JSON.parse(settingsFiles(files)[0]!.content) as { hooks?: Record<string, unknown> };
+    const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
+      hooks?: Record<string, unknown>;
+    };
     const keys = Object.keys(settings.hooks ?? {});
     expect(keys).toContain("UserPromptSubmit");
     expect(keys).toContain("SessionEnd");
@@ -644,19 +779,62 @@ describe("buildConfig — hooks lifecycle (sourcés)", () => {
   });
 });
 
+describe("buildConfig — hook prompt-destructive-guard (type prompt, sans shell)", () => {
+  it("emet un hook PreToolUse/Bash de type prompt, structure exacte + schema conforme", () => {
+    const files = buildConfig(makeAnswers({ hooks: ["prompt-destructive-guard"] }));
+    const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
+      hooks?: Record<string, Array<{ matcher?: string; hooks: Array<Record<string, unknown>> }>>;
+    };
+    const pre = settings.hooks?.["PreToolUse"];
+    expect(pre).toBeDefined();
+    expect(pre!.length).toBe(1);
+    expect(pre![0]!.matcher).toBe("Bash");
+    const hook = pre![0]!.hooks[0]!;
+    expect(hook.type).toBe("prompt");
+    expect(typeof hook.prompt).toBe("string");
+    expect(hook.prompt as string).toContain("$ARGUMENTS");
+    expect(hook).not.toHaveProperty("command");
+    expect(settingsSchema.safeParse(settings).success).toBe(true);
+  });
+
+  it("coexiste avec block-dangerous-bash : deux entrees PreToolUse (command + prompt)", () => {
+    const files = buildConfig(
+      makeAnswers({ hooks: ["block-dangerous-bash", "prompt-destructive-guard"] }),
+    );
+    const settings = JSON.parse(settingsFiles(files)[0]!.content) as {
+      hooks?: Record<string, Array<{ hooks: Array<{ type: string }> }>>;
+    };
+    const pre = settings.hooks?.["PreToolUse"] ?? [];
+    expect(pre.length).toBe(2);
+    const types = pre.map((e) => e.hooks[0]!.type);
+    expect(types).toContain("command");
+    expect(types).toContain("prompt");
+    expect(settingsSchema.safeParse(settings).success).toBe(true);
+  });
+});
+
 describe("buildConfig — workflow (posture + advisor + orchestration)", () => {
   function wf(over: Partial<Answers["workflow"]>): Partial<Answers> {
     return {
-      workflow: { defaultBehavior: "act", advisor: { enabled: false, model: "" }, orchestration: false, ...over },
+      workflow: {
+        defaultBehavior: "act",
+        advisor: { enabled: false, model: "" },
+        orchestration: false,
+        ...over,
+      },
     };
   }
 
   it("directive de posture selon le comportement par defaut", () => {
     const act = claudeMdFiles(buildConfig(makeAnswers(wf({ defaultBehavior: "act" }))))[0]!.content;
     expect(act).toContain("agir directement");
-    const research = claudeMdFiles(buildConfig(makeAnswers(wf({ defaultBehavior: "research" }))))[0]!.content;
+    const research = claudeMdFiles(
+      buildConfig(makeAnswers(wf({ defaultBehavior: "research" }))),
+    )[0]!.content;
     expect(research).toContain("consulter la doc officielle");
-    const brainstorm = claudeMdFiles(buildConfig(makeAnswers(wf({ defaultBehavior: "brainstorm" }))))[0]!.content;
+    const brainstorm = claudeMdFiles(
+      buildConfig(makeAnswers(wf({ defaultBehavior: "brainstorm" }))),
+    )[0]!.content;
     expect(brainstorm).toContain("brainstormer pour qualifier");
   });
 

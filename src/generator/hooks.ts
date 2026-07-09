@@ -2,7 +2,7 @@ import type { Answers, HookId, Language, Localized } from "../types";
 
 export interface HookEntry {
   matcher?: string;
-  hooks: Array<{ type: "command"; command: string }>;
+  hooks: Array<{ type: "command"; command: string } | { type: "prompt"; prompt: string }>;
 }
 
 export interface HookDescriptor {
@@ -116,6 +116,25 @@ export const HOOK_DESCRIPTORS: readonly HookDescriptor[] = [
       en: "PreToolUse hook (Bash matcher): reads the command on stdin and blocks (exit 2) if it contains a destructive pattern (rm -rf /, mkfs, dd, fork bomb, chmod 777). A safety net on top of the declarative deny.",
     },
   },
+  {
+    id: "prompt-destructive-guard",
+    label: {
+      fr: "Garde anti-commandes destructives (modèle)",
+      en: "Destructive command guard (model)",
+    },
+    summary: {
+      fr: "Hook PreToolUse qui demande à un modèle rapide d'évaluer et de refuser les commandes Bash destructives.",
+      en: "PreToolUse hook that asks a fast model to evaluate and refuse destructive Bash commands.",
+    },
+    caveat: {
+      fr: "Aucun shell requis (évaluation par un modèle) : contrairement au blocage bash, il fonctionne sur Windows. Ajoute une latence (un appel modèle par commande Bash), délai d'expiration 30 s par défaut.",
+      en: "No shell required (model evaluation): unlike the bash block, it works on Windows. Adds latency (one model call per Bash command), 30s default timeout.",
+    },
+    detail: {
+      fr: "Hook PreToolUse (matcher Bash) de type prompt : la commande est envoyée à un modèle rapide qui renvoie une décision JSON. Si la commande est jugée destructive (rm -rf, DROP de base, git push --force, mkfs, dd...), elle est refusée (decision deny) avec le motif affiché. Fonctionne sans shell, donc y compris sur Windows.",
+      en: "PreToolUse hook (Bash matcher) of type prompt: the command is sent to a fast model that returns a JSON decision. If the command is deemed destructive (rm -rf, database DROP, git push --force, mkfs, dd...), it is denied (decision deny) with the reason shown. Works without a shell, including on Windows.",
+    },
+  },
 ];
 
 /**
@@ -126,16 +145,21 @@ function blockDangerousCommand(fr: boolean): string {
   const msg = fr
     ? "BLOQUÉ: commande destructive détectée"
     : "BLOCKED: destructive command detected";
-  const patterns = [
-    "rm -rf /",
-    "rm -rf ~",
-    "mkfs",
-    "dd if=",
-    ":(){ :|:& };:",
-    "chmod 777",
-  ];
+  const patterns = ["rm -rf /", "rm -rf ~", "mkfs", "dd if=", ":(){ :|:& };:", "chmod 777"];
   const loop = patterns.map((p) => `"${p}"`).join(" ");
   return `bash -c 'IN=$(cat); for P in ${loop}; do if printf "%s" "$IN" | grep -qF "$P"; then echo "${msg} ($P)" >&2; exit 2; fi; done; exit 0'`;
+}
+
+/**
+ * Hook prompt (type "prompt", sans shell) : envoie la commande Bash a un modele rapide qui
+ * renvoie une decision JSON. Contrat officiel (code.claude.com/docs/en/hooks#prompt-based-hooks,
+ * verifie 2026-07-09) : la reponse doit contenir un champ "decision" valant "allow" ou "deny" ;
+ * "deny" bloque l'appel outil. $ARGUMENTS est remplace par le JSON d'entree du hook.
+ */
+function destructiveGuardPrompt(fr: boolean): string {
+  return fr
+    ? 'Tu es un garde-fou de sécurité pour un agent de code. Analyse la commande Bash ci-dessous et détermine si elle est destructive ou dangereuse (rm -rf, suppression massive, mkfs, dd sur un disque, DROP/TRUNCATE de base de données, git push --force, chmod 777 récursif, fork bomb, curl|bash). Réponds UNIQUEMENT par un objet JSON : {"decision": "deny"} si la commande est destructive, sinon {"decision": "allow"}. Commande :\n\n$ARGUMENTS'
+    : 'You are a safety guardrail for a coding agent. Analyze the Bash command below and decide whether it is destructive or dangerous (rm -rf, mass deletion, mkfs, dd to a disk, database DROP/TRUNCATE, git push --force, recursive chmod 777, fork bomb, curl|bash). Reply ONLY with a JSON object: {"decision": "deny"} if the command is destructive, otherwise {"decision": "allow"}. Command:\n\n$ARGUMENTS';
 }
 
 /** Construit l'objet hooks pour settings.json, ou undefined si aucun hook choisi. */
@@ -160,13 +184,22 @@ export function buildHooks(a: Answers): Record<string, HookEntry[]> | undefined 
     out["Stop"] = [{ hooks: [{ type: "command", command: `echo "${msg}"` }] }];
   }
 
+  // PreToolUse (matcher Bash) accumule le blocage declaratif (command) et la garde par modele (prompt).
+  const preToolUse: HookEntry[] = [];
   if (a.hooks.includes("block-dangerous-bash")) {
-    out["PreToolUse"] = [
-      {
-        matcher: "Bash",
-        hooks: [{ type: "command", command: blockDangerousCommand(fr) }],
-      },
-    ];
+    preToolUse.push({
+      matcher: "Bash",
+      hooks: [{ type: "command", command: blockDangerousCommand(fr) }],
+    });
+  }
+  if (a.hooks.includes("prompt-destructive-guard")) {
+    preToolUse.push({
+      matcher: "Bash",
+      hooks: [{ type: "prompt", prompt: destructiveGuardPrompt(fr) }],
+    });
+  }
+  if (preToolUse.length > 0) {
+    out["PreToolUse"] = preToolUse;
   }
 
   if (a.hooks.includes("prompt-guardrail")) {

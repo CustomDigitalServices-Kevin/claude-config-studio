@@ -4,17 +4,9 @@ export function cn(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(" ");
 }
 
-export function Card({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function Card({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("rounded-xl border border-ink-700 bg-ink-850", className)}>
-      {children}
-    </div>
+    <div className={cn("rounded-xl border border-ink-700 bg-ink-850", className)}>{children}</div>
   );
 }
 

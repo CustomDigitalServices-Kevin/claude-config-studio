@@ -13,7 +13,8 @@ export function hierarchySection(a: Answers): string {
   const fr = a.language === "fr";
   const depth = depthById(a.depth);
   const sectorNames = a.sectors.map((id) => sectorById(id).slug);
-  const sectorList = sectorNames.length > 0 ? sectorNames.join(", ") : fr ? "(aucun coché)" : "(none selected)";
+  const sectorList =
+    sectorNames.length > 0 ? sectorNames.join(", ") : fr ? "(aucun coché)" : "(none selected)";
   const lines: string[] = [
     `## ${fr ? "Hiérarchie" : "Hierarchy"}`,
     "",

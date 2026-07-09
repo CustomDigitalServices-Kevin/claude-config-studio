@@ -19,7 +19,10 @@ export interface GeneralMarketplace {
 }
 
 export const MARKETPLACE_TOPICS: ReadonlyArray<{ id: MarketplaceTopicId; label: Localized }> = [
-  { id: "power-platform", label: { fr: "Power Platform / Microsoft", en: "Power Platform / Microsoft" } },
+  {
+    id: "power-platform",
+    label: { fr: "Power Platform / Microsoft", en: "Power Platform / Microsoft" },
+  },
   { id: "ide", label: { fr: "Éditeurs / IDE", en: "Editors / IDE" } },
   { id: "packages", label: { fr: "Dev général / packages", en: "General dev / packages" } },
 ];

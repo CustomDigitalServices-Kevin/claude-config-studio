@@ -98,7 +98,9 @@ export function OptionControls({
               />
             )}
 
-            {opt.hint && <p className="mt-1 text-[11px] leading-snug text-ink-500">{pick(opt.hint, lang)}</p>}
+            {opt.hint && (
+              <p className="mt-1 text-[11px] leading-snug text-ink-500">{pick(opt.hint, lang)}</p>
+            )}
           </div>
         );
       })}

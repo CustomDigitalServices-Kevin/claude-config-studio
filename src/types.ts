@@ -73,6 +73,7 @@ export type StackId = (typeof STACK_IDS)[number];
 
 export const HOOK_IDS = [
   "block-dangerous-bash",
+  "prompt-destructive-guard",
   "session-start-reminder",
   "stop-checklist",
   "prompt-guardrail",
@@ -112,6 +113,12 @@ export interface AdvancedSettings {
   outputStyle: "" | "Explanatory" | "Learning";
   /** Mode de permission par defaut ("" = ne pas fixer). Limite aux valeurs sures (jamais bypass/auto/dontAsk). */
   permissionMode: "" | "default" | "acceptEdits" | "plan";
+  /** Modele de repli si le principal est surcharge ("" = aucun). Emis en array (schema officiel maxItems 3, schemastore verifie 2026-07-09) ; l'UI n'expose qu'un choix, on emet un seul element. */
+  fallbackModel: "" | "opus" | "sonnet" | "haiku";
+  /** Langue preferee des reponses de Claude ("" = defaut). Cle settings "language", string libre (ex "french"). */
+  responseLanguage: string;
+  /** Attribution git ("" = defaut Claude ; "none" = retire la mention des commits et PRs via commit:"" et pr:""). */
+  attribution: "" | "none";
 }
 
 /** Reponses collectees par le wizard. Aucune valeur Kevin-specifique : tout vient de l'utilisateur. */
@@ -144,6 +151,8 @@ export interface Answers {
   skills: string[];
   /** Ids des agents (subagents, catalogue source) a installer ; genere une commande d'install dans INSTALL.md. */
   agents: string[];
+  /** Ids des serveurs MCP (catalogue mcpServers, entrees avec mcpJson pret) a emettre dans un .mcp.json opt-in. */
+  mcpServers: string[];
   /** Ids des outils dont la regle 0 associee est activee. */
   toolRules: string[];
   /** Valeurs des parametres de regles/outils, cle = `${ownerId}.${optionId}`. */
@@ -164,8 +173,8 @@ export interface GeneratedFile {
 }
 
 /**
- * Schema du settings.json Claude Code, derive des fichiers reels sur disque
- * (Antigravity/.claude/settings.json + web-apps/.claude/settings.json).
+ * Schema du settings.json Claude Code, derive de settings.json reels observes
+ * sur des workspaces multi-niveaux, et aligne sur le schema officiel schemastore.
  * Sert de test de conformite de la sortie generee.
  */
 export const settingsSchema = z.object({
@@ -176,6 +185,12 @@ export const settingsSchema = z.object({
   outputStyle: z.string().optional(),
   /** Memoire automatique inter-sessions. */
   autoMemoryEnabled: z.boolean().optional(),
+  /** Chaine de repli modele. Schema officiel (schemastore, verifie 2026-07-09) : array de strings, maxItems 3. */
+  fallbackModel: z.array(z.string()).max(3).optional(),
+  /** Langue preferee des reponses (schema officiel : string libre, ex "french"). */
+  language: z.string().optional(),
+  /** Attribution des commits/PRs (schema officiel : objet {commit?, pr?} de strings, additionalProperties false). */
+  attribution: z.object({ commit: z.string().optional(), pr: z.string().optional() }).optional(),
   env: z.record(z.string(), z.string()).optional(),
   permissions: z
     .object({
@@ -193,10 +208,18 @@ export const settingsSchema = z.object({
         z.object({
           matcher: z.string().optional(),
           hooks: z.array(
-            z.object({
-              type: z.literal("command"),
-              command: z.string(),
-            }),
+            z.union([
+              z.object({
+                type: z.literal("command"),
+                command: z.string(),
+              }),
+              /** Hook type "prompt" (evaluation modele, sans shell). Champs requis : type + prompt. */
+              z.object({
+                type: z.literal("prompt"),
+                prompt: z.string(),
+                timeout: z.number().optional(),
+              }),
+            ]),
           ),
         }),
       ),
@@ -205,6 +228,53 @@ export const settingsSchema = z.object({
 });
 
 export type ClaudeSettings = z.infer<typeof settingsSchema>;
+
+/**
+ * Schema Zod des Answers. Valide tout Answers venant d'une source EXTERNE
+ * (localStorage, permalink d'URL, manifeste config-studio.json re-importe).
+ * L'annotation z.ZodType<Answers> garantit a la compilation que le schema
+ * reste aligne sur l'interface : tout champ ajoute a Answers casse ici.
+ */
+export const answersSchema: z.ZodType<Answers> = z.object({
+  projectName: z.string(),
+  author: z.string(),
+  org: z.string(),
+  authorRole: z.string(),
+  companyId: z.string(),
+  responseStyle: z.enum(["", "concise", "detailed"]),
+  language: z.enum(["fr", "en"]),
+  profiles: z.array(z.enum(PROFILE_IDS)),
+  depth: z.enum(DEPTH_IDS),
+  sectors: z.array(z.enum(SECTOR_IDS)),
+  stacks: z.array(z.enum(STACK_IDS)),
+  rules: z.array(z.enum(RULE_IDS)),
+  rigor: z.enum(["strict", "standard", "light"]),
+  hooks: z.array(z.enum(HOOK_IDS)),
+  tools: z.array(z.string()),
+  skills: z.array(z.string()),
+  agents: z.array(z.string()),
+  mcpServers: z.array(z.string()),
+  toolRules: z.array(z.string()),
+  ruleOptions: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
+  memoryNote: z.string(),
+  advanced: z.object({
+    model: z.enum(["", "opus", "sonnet", "haiku"]),
+    autoMemory: z.boolean(),
+    outputStyle: z.enum(["", "Explanatory", "Learning"]),
+    permissionMode: z.enum(["", "default", "acceptEdits", "plan"]),
+    fallbackModel: z.enum(["", "opus", "sonnet", "haiku"]),
+    responseLanguage: z.string(),
+    attribution: z.enum(["", "none"]),
+  }),
+  workflow: z.object({
+    defaultBehavior: z.enum(DEFAULT_BEHAVIORS),
+    advisor: z.object({
+      enabled: z.boolean(),
+      model: z.enum(["", "opus", "sonnet", "haiku"]),
+    }),
+    orchestration: z.boolean(),
+  }),
+});
 
 /** Texte localise FR/EN. */
 export interface Localized {

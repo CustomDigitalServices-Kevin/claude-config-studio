@@ -7,10 +7,10 @@ import {
   skillCategoriesInOrder,
 } from "../data/skills";
 import { SectionLabel, SelectableRow, Badge, ExternalLink, cn } from "./primitives";
+import { VerifiedBadge } from "./VerifiedBadge";
 import { toggle, type SectionProps } from "./sectionShared";
 
-export function SkillsSection({ answers: a, setAnswers: setA }: SectionProps) {
-  const lang = a.language;
+export function SkillsSection({ answers: a, setAnswers: setA, lang }: SectionProps) {
   const selected = a.skills;
 
   function toggleSkill(id: string): void {
@@ -40,20 +40,29 @@ export function SkillsSection({ answers: a, setAnswers: setA }: SectionProps) {
                         <span
                           className={cn(
                             "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px]",
-                            on ? "border-clay-500 bg-clay-500 text-ink-950" : "border-ink-600 text-transparent",
+                            on
+                              ? "border-clay-500 bg-clay-500 text-ink-950"
+                              : "border-ink-600 text-transparent",
                           )}
                         >
                           ✓
                         </span>
                         <span className="flex min-w-0 flex-col gap-1">
                           <span className="flex items-center gap-2">
-                            <span className="truncate text-sm font-medium text-ink-100">{s.name}</span>
+                            <span className="truncate text-sm font-medium text-ink-100">
+                              {s.name}
+                            </span>
                             <Badge tone={s.method === "marketplace" ? "clay" : "moss"}>
                               {pick(SKILL_METHOD_LABELS[s.method], lang)}
                             </Badge>
                           </span>
-                          <span className="text-xs leading-relaxed text-ink-400">{pick(s.what, lang)}</span>
-                          <code className="mt-0.5 block truncate text-[11px] text-ink-500">{s.install}</code>
+                          <span className="text-xs leading-relaxed text-ink-400">
+                            {pick(s.what, lang)}
+                          </span>
+                          <code className="mt-0.5 block truncate text-[11px] text-ink-500">
+                            {s.install}
+                          </code>
+                          <VerifiedBadge verifiedAt={s.verifiedAt} lang={lang} />
                         </span>
                       </button>
                       <ExternalLink href={s.source}>src</ExternalLink>

@@ -7,6 +7,7 @@ import {
 } from "../data/tools";
 import { pick, type Language } from "../types";
 import { Badge, cn, ExternalLink, SelectableRow } from "./primitives";
+import { VerifiedBadge } from "./VerifiedBadge";
 import { OptionControls } from "./OptionControls";
 
 const T = {
@@ -102,7 +103,9 @@ function ToolRow({
           {ruleOn && (
             <div className="space-y-2 px-3 pb-2.5">
               {tool.rule.detail && (
-                <p className="text-[11px] leading-snug text-ink-400">{pick(tool.rule.detail, lang)}</p>
+                <p className="text-[11px] leading-snug text-ink-400">
+                  {pick(tool.rule.detail, lang)}
+                </p>
               )}
               {tool.rule.options && tool.rule.options.length > 0 && (
                 <OptionControls
@@ -137,7 +140,10 @@ function ToolRow({
             <span className="text-ink-500">{t.cons} : </span>
             {pick(tool.disadvantages, lang)}
           </p>
-          <ExternalLink href={tool.source}>{tool.source}</ExternalLink>
+          <div className="flex items-center justify-between gap-3">
+            <ExternalLink href={tool.source}>{tool.source}</ExternalLink>
+            <VerifiedBadge verifiedAt={tool.verifiedAt} lang={lang} />
+          </div>
         </div>
       )}
     </SelectableRow>

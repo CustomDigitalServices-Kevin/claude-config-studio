@@ -16,6 +16,12 @@ export const BASE_DENY: readonly string[] = [
   "Bash(curl * | bash)",
   "Bash(curl * | sh)",
   "Bash(wget * | bash)",
+  // Variantes compactes (sans espaces autour du pipe) : contournent les patterns espaces ci-dessus.
+  "Bash(curl *|bash)",
+  "Bash(curl *|sh)",
+  "Bash(wget -O- *)",
+  "Bash(wget *|bash)",
+  "Bash(wget *|sh)",
   "Bash(eval *)",
 ];
 
@@ -66,6 +72,19 @@ export function generateSettings(a: Answers): ClaudeSettings {
   }
   if (!adv.autoMemory) {
     settings.autoMemoryEnabled = false;
+  }
+  // Chaine de repli modele : schema officiel = array de strings (schemastore, verifie 2026-07-09).
+  // L'UI n'expose qu'un choix unique, on emet donc un array a un element.
+  if (adv.fallbackModel) {
+    settings.fallbackModel = [adv.fallbackModel];
+  }
+  // Langue preferee des reponses (cle settings "language", string libre ex "french").
+  if (adv.responseLanguage) {
+    settings.language = adv.responseLanguage;
+  }
+  // Attribution "none" : retire la mention Claude des commits et PRs via chaines vides (forme officielle).
+  if (adv.attribution === "none") {
+    settings.attribution = { commit: "", pr: "" };
   }
 
   const hooks = buildHooks(a);

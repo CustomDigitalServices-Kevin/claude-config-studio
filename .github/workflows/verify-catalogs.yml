@@ -1,0 +1,69 @@
+name: Verify catalogs
+
+on:
+  schedule:
+    # Lundi 06:00 UTC : verification hebdomadaire de la fraicheur des catalogues.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run catalog verification
+        id: verify
+        run: |
+          set +e
+          npm run verify:catalogs > verify-output.txt 2>&1
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat verify-output.txt
+
+      - name: Open drift issue on error (deduplicated)
+        if: steps.verify.outputs.exit_code != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const output = fs.readFileSync("verify-output.txt", "utf8");
+            const label = "catalog-drift";
+            const { owner, repo } = context.repo;
+
+            // Dedup : ne pas creer de doublon si une issue ouverte porte deja ce label.
+            const existing = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: "open",
+              labels: label,
+            });
+            if (existing.data.length > 0) {
+              core.info(`Issue ${label} déjà ouverte (#${existing.data[0].number}), aucune création.`);
+              return;
+            }
+
+            const date = new Date().toISOString().slice(0, 10);
+            const max = 60000;
+            const body = output.length > max ? output.slice(0, max) + "\n... (tronqué)" : output;
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title: `Dérive catalogues détectée (${date})`,
+              labels: [label],
+              body:
+                "Le job verify-catalogs a détecté au moins une erreur (lien mort, nom de marketplace divergent, ou schéma settings cassé). Sortie du script :\n\n```\n" +
+                body +
+                "\n```",
+            });
