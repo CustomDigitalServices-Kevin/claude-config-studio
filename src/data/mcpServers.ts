@@ -61,7 +61,7 @@ export const MCP_CATEGORIES: ReadonlyArray<{ id: McpCategoryId; label: Localized
 ];
 
 export const MCP_INTRO: Localized = {
-  fr: "Un serveur MCP donne a Claude Code des outils sur un systeme externe. Ajout : `claude mcp add --transport http <nom> <url>` (distant) ou `claude mcp add <nom> -- <commande>` (local), ou via un `.mcp.json` projet (Claude Code propose d'approuver les serveurs au premier lancement interactif). Note : les endpoints `/sse` sont depreces, utiliser `/mcp` (HTTP).",
+  fr: "Un serveur MCP donne à Claude Code des outils sur un système externe. Ajout : `claude mcp add --transport http <nom> <url>` (distant) ou `claude mcp add <nom> -- <commande>` (local), ou via un `.mcp.json` projet (Claude Code propose d'approuver les serveurs au premier lancement interactif). Note : les endpoints `/sse` sont dépréciés, utiliser `/mcp` (HTTP).",
   en: "An MCP server gives Claude Code tools over an external system. Add: `claude mcp add --transport http <name> <url>` (remote) or `claude mcp add <name> -- <command>` (local), or via a project `.mcp.json` (Claude Code prompts to approve servers at first interactive launch). Note: `/sse` endpoints are deprecated, use `/mcp` (HTTP).",
 };
 
@@ -69,6 +69,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Dev / Git
   {
     id: "github",
+    verifiedAt: "2026-07-09",
     name: "GitHub MCP",
     category: "dev-git",
     official: true,
@@ -86,6 +87,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "gitlab",
+    verifiedAt: "2026-07-09",
     name: "GitLab MCP (GitLab Duo)",
     category: "dev-git",
     official: true,
@@ -107,6 +109,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "git",
+    verifiedAt: "2026-07-09",
     name: "Git (mcp-server-git)",
     category: "dev-git",
     official: true,
@@ -125,6 +128,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Bases de données
   {
     id: "supabase",
+    verifiedAt: "2026-07-09",
     name: "Supabase MCP",
     category: "db",
     official: true,
@@ -148,6 +152,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "mongodb",
+    verifiedAt: "2026-07-09",
     name: "MongoDB MCP",
     category: "db",
     official: true,
@@ -167,6 +172,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "postgres-pro",
+    verifiedAt: "2026-07-09",
     name: "Postgres MCP Pro (crystaldba)",
     category: "db",
     official: false,
@@ -190,6 +196,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "sqlite",
+    verifiedAt: "2026-07-09",
     name: "SQLite MCP (archivé)",
     category: "db",
     official: true,
@@ -212,6 +219,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Navigateur / Automatisation
   {
     id: "playwright",
+    verifiedAt: "2026-07-09",
     name: "Playwright MCP (Microsoft)",
     category: "browser",
     official: true,
@@ -229,6 +237,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "chrome-devtools",
+    verifiedAt: "2026-07-09",
     name: "Chrome DevTools MCP (Google)",
     category: "browser",
     official: true,
@@ -246,6 +255,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "puppeteer",
+    verifiedAt: "2026-07-09",
     name: "Puppeteer MCP (déprécié)",
     category: "browser",
     official: true,
@@ -268,6 +278,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Docs / Contexte
   {
     id: "context7",
+    verifiedAt: "2026-07-09",
     name: "context7 (Upstash)",
     category: "docs",
     official: true,
@@ -290,6 +301,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "microsoft-learn",
+    verifiedAt: "2026-07-09",
     name: "Microsoft Learn MCP",
     category: "docs",
     official: true,
@@ -308,6 +320,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "aws-docs",
+    verifiedAt: "2026-07-09",
     name: "AWS Documentation MCP",
     category: "docs",
     official: true,
@@ -327,6 +340,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Productivité / PM
   {
     id: "notion",
+    verifiedAt: "2026-07-09",
     name: "Notion MCP",
     category: "productivity",
     official: true,
@@ -344,6 +358,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "linear",
+    verifiedAt: "2026-07-09",
     name: "Linear MCP",
     category: "productivity",
     official: true,
@@ -361,6 +376,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "slack",
+    verifiedAt: "2026-07-09",
     name: "Slack MCP (officiel)",
     category: "productivity",
     official: true,
@@ -382,6 +398,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "atlassian",
+    verifiedAt: "2026-07-09",
     name: "Atlassian Rovo MCP (Jira / Confluence)",
     category: "productivity",
     official: true,
@@ -396,13 +413,14 @@ export const MCP_SERVERS: readonly McpServer[] = [
     addCommand: "claude mcp add --transport http atlassian https://mcp.atlassian.com/v1/mcp/authv2",
     mcpJson: '{ "type": "http", "url": "https://mcp.atlassian.com/v1/mcp/authv2" }',
     note: {
-      fr: "Ancien endpoint SSE /v1/sse déprécié (fin de support 30/06/2026).",
-      en: "Old SSE endpoint /v1/sse deprecated (end of support 2026-06-30).",
+      fr: "Ancien endpoint SSE /v1/sse hors support depuis le 30/06/2026, utiliser /v1/mcp/authv2.",
+      en: "Old SSE endpoint /v1/sse out of support since 2026-06-30, use /v1/mcp/authv2.",
     },
     source: "https://support.atlassian.com/atlassian-rovo-mcp-server/docs/setting-up-ides/",
   },
   {
     id: "asana",
+    verifiedAt: "2026-07-09",
     name: "Asana MCP",
     category: "productivity",
     official: true,
@@ -422,6 +440,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Observabilité
   {
     id: "sentry",
+    verifiedAt: "2026-07-09",
     name: "Sentry MCP",
     category: "observability",
     official: true,
@@ -444,6 +463,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Fichiers / Web
   {
     id: "filesystem",
+    verifiedAt: "2026-07-09",
     name: "Filesystem MCP",
     category: "files-web",
     official: true,
@@ -463,6 +483,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "fetch",
+    verifiedAt: "2026-07-09",
     name: "Fetch MCP",
     category: "files-web",
     official: true,
@@ -481,6 +502,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Cloud / Infra
   {
     id: "cloudflare",
+    verifiedAt: "2026-07-09",
     name: "Cloudflare MCP",
     category: "cloud",
     official: true,
@@ -503,6 +525,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "aws",
+    verifiedAt: "2026-07-09",
     name: "AWS MCP (suite awslabs)",
     category: "cloud",
     official: true,
@@ -520,6 +543,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "azure",
+    verifiedAt: "2026-07-09",
     name: "Azure MCP",
     category: "cloud",
     official: true,
@@ -538,6 +562,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Design
   {
     id: "figma",
+    verifiedAt: "2026-07-09",
     name: "Figma MCP (Dev Mode)",
     category: "design",
     official: true,
@@ -560,6 +585,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Recherche / Web
   {
     id: "brave-search",
+    verifiedAt: "2026-07-09",
     name: "Brave Search MCP",
     category: "search",
     official: true,
@@ -583,6 +609,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "exa",
+    verifiedAt: "2026-07-09",
     name: "Exa MCP",
     category: "search",
     official: true,
@@ -602,6 +629,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Connaissances (Obsidian)
   {
     id: "obsidian-claude-code-mcp",
+    verifiedAt: "2026-07-09",
     name: "obsidian-claude-code-mcp (iansinnott)",
     category: "knowledge",
     official: false,
@@ -619,6 +647,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   },
   {
     id: "mcp-obsidian",
+    verifiedAt: "2026-07-09",
     name: "mcp-obsidian (MarkusPfundstein)",
     category: "knowledge",
     official: false,
@@ -638,6 +667,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Contexte dépôt
   {
     id: "repomix-mcp",
+    verifiedAt: "2026-07-09",
     name: "repomix (mode MCP)",
     category: "repo",
     official: false,
@@ -656,6 +686,7 @@ export const MCP_SERVERS: readonly McpServer[] = [
   // Planning / Orchestration
   {
     id: "task-master-mcp",
+    verifiedAt: "2026-07-09",
     name: "task-master-ai (mode MCP)",
     category: "planning",
     official: false,

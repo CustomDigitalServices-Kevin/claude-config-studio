@@ -49,13 +49,14 @@ export const INSTALL_MECHANICS: Localized = {
 export const MARKETPLACES: readonly Marketplace[] = [
   {
     id: "claude-plugins-official",
+    verifiedAt: "2026-07-09",
     name: "claude-plugins-official",
     kind: "marketplace",
     official: true,
     maintainer: "Anthropic",
     addCommand: "/plugin marketplace add anthropics/claude-plugins-official",
     installExample: "/plugin install github@claude-plugins-official",
-    pluginCount: 243,
+    pluginCount: 255,
     what: {
       fr: "Le marketplace curé par Anthropic, ajouté automatiquement au premier lancement. Le plus important : disponible dès l'installation. Couvre outils Anthropic, plugins LSP officiels et intégrations partenaires vérifiées (GitHub, Playwright, Supabase, Vercel, Sentry...).",
       en: "Anthropic's curated marketplace, auto-added on first launch. The single most important one: available out of the box. Spans Anthropic tools, official LSP plugins and vetted partner integrations (GitHub, Playwright, Supabase, Vercel, Sentry...).",
@@ -184,6 +185,7 @@ export const MARKETPLACES: readonly Marketplace[] = [
   },
   {
     id: "claude-community",
+    verifiedAt: "2026-07-09",
     name: "claude-community",
     kind: "marketplace",
     official: true,
@@ -290,6 +292,7 @@ export const MARKETPLACES: readonly Marketplace[] = [
   },
   {
     id: "claude-code-plugins",
+    verifiedAt: "2026-07-09",
     name: "claude-code-plugins",
     kind: "marketplace",
     official: true,
@@ -388,6 +391,7 @@ export const MARKETPLACES: readonly Marketplace[] = [
   },
   {
     id: "anthropic-agent-skills",
+    verifiedAt: "2026-07-09",
     name: "anthropic-agent-skills",
     kind: "marketplace",
     official: true,
@@ -441,13 +445,14 @@ export const MARKETPLACES: readonly Marketplace[] = [
   },
   {
     id: "claude-code-workflows",
+    verifiedAt: "2026-07-09",
     name: "claude-code-workflows",
     kind: "marketplace",
     official: false,
     maintainer: "Seth Hobson (wshobson)",
     addCommand: "/plugin marketplace add wshobson/agents",
     installExample: "/plugin install tdd-workflows@claude-code-workflows",
-    pluginCount: 88,
+    pluginCount: 92,
     what: {
       fr: "Le marketplace communautaire indépendant le plus en vue (~88 plugins de workflow) groupés par discipline (backend, frontend/mobile, testing, sécurité, infra, data, ML). Chaque plugin bundle agents + commandes pour un workflow bout en bout.",
       en: "The most prominent independent community marketplace (~88 workflow plugins) grouped by discipline (backend, frontend/mobile, testing, security, infra, data, ML). Each plugin bundles agents + commands for an end-to-end workflow.",
@@ -557,6 +562,7 @@ export const MARKETPLACES: readonly Marketplace[] = [
   },
   {
     id: "claude-code-templates",
+    verifiedAt: "2026-07-09",
     name: "claude-code-templates (aitmpl)",
     kind: "cli",
     official: false,
@@ -605,6 +611,7 @@ export const MARKETPLACES: readonly Marketplace[] = [
   },
   {
     id: "awesome-claude-code",
+    verifiedAt: "2026-07-09",
     name: "awesome-claude-code",
     kind: "list",
     official: false,
@@ -624,6 +631,7 @@ export const MARKETPLACES: readonly Marketplace[] = [
   },
   {
     id: "awesome-claude-plugins",
+    verifiedAt: "2026-07-09",
     name: "awesome-claude-plugins",
     kind: "aggregator",
     official: false,

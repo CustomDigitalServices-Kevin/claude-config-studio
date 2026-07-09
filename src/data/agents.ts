@@ -77,6 +77,7 @@ const CCT_REPO = "https://github.com/davila7/claude-code-templates";
 export const AGENT_ENTRIES: readonly AgentEntry[] = [
   {
     id: "wshobson-backend-development",
+    verifiedAt: "2026-07-09",
     name: "backend-development",
     category: "backend",
     method: "marketplace",
@@ -94,6 +95,7 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
   },
   {
     id: "wshobson-frontend-mobile-development",
+    verifiedAt: "2026-07-09",
     name: "frontend-mobile-development",
     category: "frontend",
     method: "marketplace",
@@ -111,6 +113,7 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
   },
   {
     id: "anthropics-pr-review-toolkit",
+    verifiedAt: "2026-07-09",
     name: "pr-review-toolkit",
     category: "dev-workflow",
     method: "marketplace",
@@ -128,6 +131,7 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
   },
   {
     id: "cct-code-reviewer",
+    verifiedAt: "2026-07-09",
     name: "code-reviewer",
     category: "dev-workflow",
     method: "cct-cli",
@@ -144,6 +148,7 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
   },
   {
     id: "wshobson-security-scanning",
+    verifiedAt: "2026-07-09",
     name: "security-scanning",
     category: "security",
     method: "marketplace",
@@ -161,6 +166,7 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
   },
   {
     id: "cct-database-optimizer",
+    verifiedAt: "2026-07-09",
     name: "database-optimizer",
     category: "data",
     method: "cct-cli",
@@ -177,6 +183,7 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
   },
   {
     id: "wshobson-kubernetes-operations",
+    verifiedAt: "2026-07-09",
     name: "kubernetes-operations",
     category: "devops",
     method: "marketplace",
@@ -194,6 +201,7 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
   },
   {
     id: "cct-terraform-specialist",
+    verifiedAt: "2026-07-09",
     name: "terraform-specialist",
     category: "devops",
     method: "cct-cli",
@@ -211,6 +219,7 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
   },
   {
     id: "cct-load-testing-specialist",
+    verifiedAt: "2026-07-09",
     name: "load-testing-specialist",
     category: "testing",
     method: "cct-cli",
@@ -228,6 +237,7 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
   },
   {
     id: "cct-api-documenter",
+    verifiedAt: "2026-07-09",
     name: "api-documenter",
     category: "docs",
     method: "cct-cli",
@@ -244,6 +254,7 @@ export const AGENT_ENTRIES: readonly AgentEntry[] = [
   },
   {
     id: "cct-ai-engineer",
+    verifiedAt: "2026-07-09",
     name: "ai-engineer",
     category: "ai-ml",
     method: "cct-cli",
