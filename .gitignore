@@ -14,3 +14,4 @@ coverage
 HANDOFF.md
 .playwright-mcp
 test-results
+playwright-report
