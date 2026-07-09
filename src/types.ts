@@ -173,8 +173,8 @@ export interface GeneratedFile {
 }
 
 /**
- * Schema du settings.json Claude Code, derive des fichiers reels sur disque
- * (Antigravity/.claude/settings.json + web-apps/.claude/settings.json).
+ * Schema du settings.json Claude Code, derive de settings.json reels observes
+ * sur des workspaces multi-niveaux, et aligne sur le schema officiel schemastore.
  * Sert de test de conformite de la sortie generee.
  */
 export const settingsSchema = z.object({
