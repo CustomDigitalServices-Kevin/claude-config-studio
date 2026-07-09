@@ -213,6 +213,23 @@ export const CHROME = {
       en: "Deliberately limited to safe, verified hooks. A shell hook shipped to a Windows user can break silently: the declarative permissions deny already covers destructive commands, without depending on a shell.",
     },
   },
+  guardrails: {
+    skillsTitle: { fr: "Sortir les procédures en skills", en: "Move procedures into skills" },
+    skillsHint: {
+      fr: "Les garde-fous PROCÉDURAUX (marqués « skill ») sont déportés dans `.claude/skills/<id>/`, chargés à la demande au lieu d'occuper le CLAUDE.md en permanence. Les règles 0 restent toujours inline. CLAUDE.md n'en garde qu'une ligne de référence.",
+      en: 'PROCEDURAL guardrails (tagged "skill") are offloaded to `.claude/skills/<id>/`, loaded on demand instead of always sitting in CLAUDE.md. The rule-zero guardrails stay inline. CLAUDE.md keeps only a one-line reference.',
+    },
+    skillsOn: { fr: "Activé", en: "Enabled" },
+    skillsOnSub: {
+      fr: "Procédures dans .claude/skills/",
+      en: "Procedures in .claude/skills/",
+    },
+    skillsOff: { fr: "Désactivé", en: "Disabled" },
+    skillsOffSub: {
+      fr: "Tout inline dans CLAUDE.md (défaut)",
+      en: "All inline in CLAUDE.md (default)",
+    },
+  },
   hierarchy: {
     eyebrow: { fr: "Arborescence · 3 niveaux de profondeur", en: "Tree · 3 depth levels" },
     title: {
