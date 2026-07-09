@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { GeneratorTab } from "./components/GeneratorTab";
 import { MarketplacesTab } from "./components/MarketplacesTab";
 import { McpServersTab } from "./components/McpServersTab";
+import { CommunityTab } from "./components/CommunityTab";
+import { SnapshotsPanel } from "./components/SnapshotsPanel";
 import { cn } from "./components/primitives";
 import { initialAnswers } from "./data/defaults";
 import { loadAnswers, saveAnswers, clearAnswers } from "./lib/persist";
@@ -10,15 +12,16 @@ import { parseManifestJson, parseManifestZip } from "./lib/manifest";
 import { pick, type Answers, type Language } from "./types";
 import { CHROME } from "./i18n/chrome";
 
-type Tab = "generator" | "marketplaces" | "mcp";
+type Tab = "generator" | "marketplaces" | "mcp" | "community";
 
 const TAB_LABELS: Record<Tab, Record<Language, string>> = {
   generator: { fr: "Générateur .claude", en: ".claude generator" },
   marketplaces: { fr: "Marketplaces", en: "Marketplaces" },
   mcp: { fr: "MCP Serveurs", en: "MCP Servers" },
+  community: { fr: "Communauté", en: "Community" },
 };
 
-const TAB_ORDER: Tab[] = ["generator", "marketplaces", "mcp"];
+const TAB_ORDER: Tab[] = ["generator", "marketplaces", "mcp", "community"];
 
 const SUBTITLE: Record<Language, string> = {
   fr: "Générateur de configuration .claude + catalogue marketplaces et outils Claude Code",
@@ -31,6 +34,7 @@ export function App() {
   const [answers, setAnswers] = useState<Answers>(() => loadAnswers() ?? initialAnswers());
   const [copied, setCopied] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
+  const [snapshotsOpen, setSnapshotsOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Permalien prioritaire au montage : un lien recu (#c=...) prime sur le localStorage.
@@ -58,6 +62,21 @@ export function App() {
 
   function clearPermalinkHash() {
     window.history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
+
+  /**
+   * Applique un jeu de reponses externe (snapshot ou config communautaire). Si l'etat
+   * courant a ete modifie depuis l'initial, demande confirmation avant d'ecraser.
+   * Retourne true si l'application a eu lieu.
+   */
+  function overwriteAnswers(next: Answers, confirmMessage: string): boolean {
+    const pristine = JSON.stringify(answers) === JSON.stringify(initialAnswers());
+    if (!pristine && !window.confirm(confirmMessage)) {
+      return false;
+    }
+    clearPermalinkHash();
+    setAnswers(next);
+    return true;
   }
 
   function onReset() {
@@ -140,6 +159,13 @@ export function App() {
             >
               {pick(CHROME.studio.reset, lang)}
             </button>
+            <button
+              type="button"
+              onClick={() => setSnapshotsOpen(true)}
+              className="rounded-lg border border-ink-700 px-3 py-1.5 text-sm text-ink-300 transition hover:bg-ink-800 hover:text-ink-100"
+            >
+              {pick(CHROME.snapshots.button, lang)}
+            </button>
             {importError && <span className="text-xs text-amber-flag">{importError}</span>}
           </div>
           <a
@@ -216,7 +242,29 @@ export function App() {
             <McpServersTab lang={lang} answers={answers} setAnswers={setAnswers} />
           </div>
         )}
+        {tab === "community" && (
+          <div className="h-full overflow-y-auto">
+            <CommunityTab
+              lang={lang}
+              answers={answers}
+              onApply={(next) => {
+                if (overwriteAnswers(next, pick(CHROME.community.openConfirm, lang))) {
+                  setTab("generator");
+                }
+              }}
+            />
+          </div>
+        )}
       </main>
+
+      {snapshotsOpen && (
+        <SnapshotsPanel
+          lang={lang}
+          answers={answers}
+          onApply={(next) => overwriteAnswers(next, pick(CHROME.snapshots.applyConfirm, lang))}
+          onClose={() => setSnapshotsOpen(false)}
+        />
+      )}
     </div>
   );
 }
