@@ -57,7 +57,7 @@ export const CHROME = {
       label: { fr: "Hooks", en: "Hooks" },
       title: { fr: "Hooks (opt-in)", en: "Hooks (opt-in)" },
       subtitle: {
-        fr: "Sensibles à l'OS et au shell. Limités aux hooks cross-platform surs.",
+        fr: "Sensibles à l'OS et au shell. Limités aux hooks cross-platform sûrs.",
         en: "OS- and shell-sensitive. Limited to safe cross-platform hooks.",
       },
     },
