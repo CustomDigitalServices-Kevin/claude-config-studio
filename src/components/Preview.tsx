@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { GeneratedFile } from "../types";
 import { downloadZip } from "../lib/zip";
 import { slugify } from "../generator/text";
@@ -8,22 +8,15 @@ function langBadge(lang: GeneratedFile["lang"]): string {
   return lang === "json" ? "json" : lang === "bash" ? "sh" : lang === "markdown" ? "md" : "txt";
 }
 
-export function Preview({
-  files,
-  projectName,
-}: {
-  files: GeneratedFile[];
-  projectName: string;
-}) {
-  const [selected, setSelected] = useState<string>(files[0]?.path ?? "");
+export function Preview({ files, projectName }: { files: GeneratedFile[]; projectName: string }) {
+  const [selectedPath, setSelectedPath] = useState<string>(files[0]?.path ?? "");
   const [building, setBuilding] = useState(false);
 
-  // garder une selection valide quand la liste change
-  useEffect(() => {
-    if (!files.some((f) => f.path === selected)) {
-      setSelected(files[0]?.path ?? "");
-    }
-  }, [files, selected]);
+  // selection derivee : si le fichier choisi a disparu de la liste, retomber sur le premier
+  // (derive plutot que synchronise par effet : evite les rendus en cascade, regle react-hooks)
+  const selected = files.some((f) => f.path === selectedPath)
+    ? selectedPath
+    : (files[0]?.path ?? "");
 
   const current = files.find((f) => f.path === selected) ?? files[0];
   const claudeMd = files.find((f) => f.path.endsWith("CLAUDE.md"));
@@ -68,7 +61,7 @@ export function Preview({
             <button
               key={f.path}
               type="button"
-              onClick={() => setSelected(f.path)}
+              onClick={() => setSelectedPath(f.path)}
               className={cn(
                 "flex w-full items-center gap-2 px-3 py-1.5 text-left font-mono text-[11px] transition",
                 f.path === selected
