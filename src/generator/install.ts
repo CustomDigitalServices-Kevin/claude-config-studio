@@ -4,6 +4,7 @@ import { effectiveProfiles, profileById } from "../data/profiles";
 import { depthById, hasProjectLayer, hasSectorLayer } from "../data/depths";
 import { sectorById } from "../data/sectors";
 import { selectedHookCaveats } from "./hooks";
+import { skilledRules } from "../data/rules";
 import { generateSkillsInstall } from "./skillsSetup";
 import { generateAgentsInstall } from "./agentsSetup";
 import { SOURCES } from "./../data/sources";
@@ -93,6 +94,14 @@ function precedenceSection(a: Answers): string {
       fr
         ? "- `.mcp.json` : les serveurs MCP fournis restent inactifs jusqu'à approbation ; Claude Code propose de les approuver à la première ouverture interactive."
         : "- `.mcp.json`: the bundled MCP servers stay inactive until approved; Claude Code prompts to approve them at the first interactive launch.",
+    );
+  }
+  // Note skills locaux : les garde-fous procéduraux déportés vivent dans `.claude/skills/` (chargés à la demande).
+  if (skilledRules(a).length > 0) {
+    lines.push(
+      fr
+        ? "- `.claude/skills/` : les garde-fous procéduraux déportés sont chargés à la demande ; CLAUDE.md n'en garde qu'une ligne de référence."
+        : "- `.claude/skills/`: the offloaded procedural guardrails are loaded on demand; CLAUDE.md keeps only a one-line reference.",
     );
   }
   return [`## 3. ${fr ? "Bon à savoir" : "Good to know"}`, "", ...lines].join("\n");

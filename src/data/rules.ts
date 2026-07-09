@@ -1,4 +1,4 @@
-import type { Localized, ProfileId, RuleId } from "../types";
+import type { Answers, Localized, ProfileId, RuleId } from "../types";
 import type { RuleOption } from "./options";
 import { SOURCES } from "./sources";
 
@@ -16,6 +16,18 @@ export interface RuleModule {
   source: string;
   /** Les "règles 0" non négociables : toujours proposées, jamais déplacées en overflow. */
   core0: boolean;
+  /**
+   * Règle PROCÉDURALE : son corps décrit une procédure à suivre pendant le travail (chargeable à
+   * la demande), pas une contrainte permanente. Seules ces règles peuvent être déportées vers un
+   * skill quand `Answers.rulesAsSkills` est vrai. Les core0 ne sont JAMAIS skillables (invariant).
+   */
+  skillable?: boolean;
+  /**
+   * Déclencheur du skill (règles skillable uniquement) : le "quand" ajouté en suffixe de la
+   * description du SKILL.md. Doc officielle : la description sert à Claude pour décider QUAND
+   * charger le skill ; un "quoi" seul rend l'auto-chargement faible.
+   */
+  skillTrigger?: Localized;
 }
 
 export const RULE_MODULES: readonly RuleModule[] = [
@@ -162,6 +174,11 @@ export const RULE_MODULES: readonly RuleModule[] = [
   {
     id: "memory-hygiene",
     core0: false,
+    skillable: true,
+    skillTrigger: {
+      fr: "À utiliser au moment d'écrire ou de mettre à jour un fichier mémoire.",
+      en: "Use when writing or updating a memory file.",
+    },
     kind: "core",
     label: { fr: "Hygiène des fichiers mémoire", en: "Memory file hygiene" },
     summary: {
@@ -215,6 +232,11 @@ export const RULE_MODULES: readonly RuleModule[] = [
   {
     id: "research-before-code",
     core0: false,
+    skillable: true,
+    skillTrigger: {
+      fr: "À utiliser avant d'écrire du code qui touche une API de librairie ou de framework versionné.",
+      en: "Use before writing code that touches a versioned library or framework API.",
+    },
     kind: "core",
     label: { fr: "Recherche avant code", en: "Research before code" },
     summary: {
@@ -387,6 +409,11 @@ export const RULE_MODULES: readonly RuleModule[] = [
   {
     id: "audit-readonly",
     core0: false,
+    skillable: true,
+    skillTrigger: {
+      fr: "À utiliser au démarrage d'une mission d'audit ou de revue en lecture seule.",
+      en: "Use when starting a read-only audit or review engagement.",
+    },
     kind: "core",
     label: { fr: "Posture audit (lecture seule)", en: "Audit posture (read-only)" },
     summary: {
@@ -416,6 +443,22 @@ export function ruleById(id: RuleId): RuleModule {
     throw new Error(`Module de règle inconnu: ${id}`);
   }
   return found;
+}
+
+/**
+ * Règles cochées à déporter vers des skills : uniquement quand `rulesAsSkills` est vrai, et
+ * seulement les règles `core` marquées `skillable` (les core0 et les scoped en sont exclues par
+ * construction, aucune n'étant `skillable`). Vide sinon => sortie strictement inchangée.
+ * Partagé par buildConfig (émission + exclusion du cap) et install/readme (mention) sans cycle :
+ * ce module data n'importe rien du générateur.
+ */
+export function skilledRules(a: Answers): RuleModule[] {
+  if (!a.rulesAsSkills) {
+    return [];
+  }
+  return RULE_MODULES.filter(
+    (r) => r.kind === "core" && r.skillable === true && a.rules.includes(r.id),
+  );
 }
 
 /** Détail "en savoir plus" par règle (à quoi elle sert, ce qu'elle fait). */

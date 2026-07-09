@@ -5,8 +5,8 @@ import { Badge, SelectableRow, cn } from "./primitives";
 import { OptionControls } from "./OptionControls";
 
 const T = {
-  fr: { detail: "En savoir plus", params: "Paramètres", scoped: "path-scoped" },
-  en: { detail: "Learn more", params: "Parameters", scoped: "path-scoped" },
+  fr: { detail: "En savoir plus", params: "Paramètres", scoped: "path-scoped", skill: "skill" },
+  en: { detail: "Learn more", params: "Parameters", scoped: "path-scoped", skill: "skill" },
 };
 
 function CheckBox({ on }: { on: boolean }) {
@@ -60,6 +60,7 @@ export function RulesSelector({
                   {pick(r.label, lang)}
                 </span>
                 {r.kind === "scoped" && <Badge tone="neutral">{t.scoped}</Badge>}
+                {r.skillable && <Badge tone="moss">{t.skill}</Badge>}
               </button>
               <button
                 type="button"

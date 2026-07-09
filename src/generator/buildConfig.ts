@@ -1,11 +1,16 @@
 import type { Answers, GeneratedFile, RuleId } from "../types";
 import { pick } from "../types";
-import { RULE_MODULES, type RuleModule } from "../data/rules";
+import { RULE_MODULES, skilledRules, type RuleModule } from "../data/rules";
 import { hasProjectLayer, hasSectorLayer } from "../data/depths";
 import { sectorById } from "../data/sectors";
 import { mcpServerById } from "../data/mcpServers";
 import { generateSettings, settingsToJson } from "./settings";
-import { generateClaudeMd, generateRuleFile, type ClaudeMdVariant } from "./claudeMd";
+import {
+  generateClaudeMd,
+  generateRuleFile,
+  generateSkillFile,
+  type ClaudeMdVariant,
+} from "./claudeMd";
 import { generateInitialize } from "./initialize";
 import { generateInstall } from "./install";
 import { generateReadme } from "./readme";
@@ -23,15 +28,22 @@ function ruleOrder(id: RuleId): number {
 interface ResolvedRules {
   core: RuleModule[];
   scoped: RuleModule[];
+  /** Règles procédurales déportées vers `.claude/skills/` (vide si `rulesAsSkills` faux). */
+  skilled: RuleModule[];
 }
 
 function resolveRules(a: Answers): ResolvedRules {
   const selected = RULE_MODULES.filter((r) => a.rules.includes(r.id)).sort(
     (x, y) => ruleOrder(x.id) - ruleOrder(y.id),
   );
+  const skilled = skilledRules(a);
+  const skilledIds = new Set(skilled.map((r) => r.id));
   return {
-    core: selected.filter((r) => r.kind === "core"),
+    // Les règles déportées en skills quittent l'inline AVANT le plafond : elles ne sont plus
+    // candidates au déport vers rules/ (une règle ne va qu'à un seul endroit).
+    core: selected.filter((r) => r.kind === "core" && !skilledIds.has(r.id)),
     scoped: selected.filter((r) => r.kind === "scoped"),
+    skilled,
   };
 }
 
@@ -40,6 +52,8 @@ interface LayerExtra {
   isRoot?: boolean;
   layerName?: string;
   initialize?: boolean;
+  /** Ids des règles déportées en skills : rendues en ligne de référence (couche racine only). */
+  skillRuleIds?: RuleId[];
 }
 
 /**
@@ -136,7 +150,7 @@ function emitLayer(
 
 /** Point d'entrée : transforme les réponses en liste de fichiers prêts pour le ZIP. */
 export function buildConfig(a: Answers): GeneratedFile[] {
-  const { core, scoped } = resolveRules(a);
+  const { core, scoped, skilled } = resolveRules(a);
   const fullSettings = settingsToJson(generateSettings(a));
   const toolsSection = [toolsClaudeMdSection(a), toolRulesSection(a)]
     .filter((s) => s.length > 0)
@@ -145,7 +159,11 @@ export function buildConfig(a: Answers): GeneratedFile[] {
 
   // INITIALIZE.md : bootstrap au premier lancement (null si rien à installer).
   const initializeContent = generateInitialize(a);
-  const rootExtra: LayerExtra = { isRoot: true, initialize: initializeContent !== null };
+  const rootExtra: LayerExtra = {
+    isRoot: true,
+    initialize: initializeContent !== null,
+    skillRuleIds: skilled.map((r) => r.id),
+  };
 
   if (!hasSectorLayer(a.depth)) {
     // Profondeur n0 : une seule couche racine, config complète.
@@ -174,6 +192,17 @@ export function buildConfig(a: Answers): GeneratedFile[] {
       const proj = slugify(a.projectName);
       files.push(...emitLayer(a, `${first.slug}/${proj}/.claude`, "n3", [], [], null, ""));
     }
+  }
+
+  // Garde-fous procéduraux déportés en skills : un `.claude/skills/<id>/SKILL.md` par règle
+  // skillable cochée (émis une seule fois à la racine, indépendant de la profondeur). Vide si
+  // `rulesAsSkills` faux => aucun fichier, sortie inchangée.
+  for (const rule of skilled) {
+    files.push({
+      path: `.claude/skills/${rule.id}/SKILL.md`,
+      content: generateSkillFile(rule.id, a),
+      lang: "markdown",
+    });
   }
 
   // Posture de travail : sous-agent advisor + commande orchestrate (fichiers séparés, hors CLAUDE.md).

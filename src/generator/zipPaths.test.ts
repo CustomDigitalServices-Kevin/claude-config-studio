@@ -34,6 +34,7 @@ function makeAnswers(over: Partial<Answers> = {}): Answers {
     mcpServers: [],
     toolRules: [],
     ruleOptions: {},
+    rulesAsSkills: false,
     memoryNote: "",
     advanced: {
       model: "",
@@ -75,6 +76,9 @@ describe("buildConfig — chemins d'archive surs (projectName adversarial)", () 
           projectName: name,
           depth: "n0n1n2",
           sectors: ["web"],
+          // rulesAsSkills + règles skillables : force l'émission de chemins .claude/skills/<id>/SKILL.md
+          rules: ["memory-hygiene", "research-before-code", "audit-readonly", "zero-improvisation"],
+          rulesAsSkills: true,
           skills: ["document-skills"],
           agents: ["cct-code-reviewer"],
           tools: ["obsidian"],

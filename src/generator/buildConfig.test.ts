@@ -35,6 +35,7 @@ function makeAnswers(over: Partial<Answers> = {}): Answers {
     mcpServers: [],
     toolRules: [],
     ruleOptions: {},
+    rulesAsSkills: false,
     memoryNote: "",
     advanced: {
       model: "",
@@ -866,5 +867,137 @@ describe("buildConfig — workflow (posture + advisor + orchestration)", () => {
     expect(cmd?.content).toContain("$ARGUMENTS");
     const noOrch = buildConfig(makeAnswers());
     expect(noOrch.some((f) => f.path === ".claude/commands/orchestrate.md")).toBe(false);
+  });
+});
+
+describe("buildConfig — rulesAsSkills (déport des garde-fous procéduraux)", () => {
+  function skillFiles(files: GeneratedFile[]): GeneratedFile[] {
+    return files.filter((f) => /^\.claude\/skills\/[^/]+\/SKILL\.md$/.test(f.path));
+  }
+
+  /** Assertion structurelle du frontmatter (sans dépendance YAML) : `---` + name + description + `---`. */
+  function assertParseableFrontmatter(content: string): void {
+    expect(content.startsWith("---\n")).toBe(true);
+    const end = content.indexOf("\n---", 4);
+    expect(end).toBeGreaterThan(0);
+    const front = content.slice(4, end);
+    expect(front).toMatch(/(^|\n)name: .+/);
+    expect(front).toMatch(/(^|\n)description: .+/);
+    const body = content.slice(end + 4).trim();
+    expect(body.length).toBeGreaterThan(0);
+  }
+
+  // Jeu de règles couvrant les 3 skillables + des core0 (jamais skillables) pour un cas dev/n0.
+  const MIXED_RULES = [
+    "zero-improvisation",
+    "anti-vibe-coding",
+    "memory-hygiene",
+    "research-before-code",
+    "audit-readonly",
+  ] as const;
+
+  it("false (défaut) : aucun fichier skill, règle procédurale toujours inline (non-régression)", () => {
+    const files = buildConfig(makeAnswers({ rules: [...MIXED_RULES], rulesAsSkills: false }));
+    expect(skillFiles(files).length).toBe(0);
+    // memory-hygiene rendue inline avec son corps complet (seuils officiels dans CLAUDE.md).
+    const md = claudeMdFiles(files)[0]!.content;
+    expect(md).toContain("Hygiène des fichiers mémoire");
+    expect(md).toContain("200 premières lignes ou 25 Ko");
+    // aucune ligne de référence skill
+    expect(md).not.toContain(".claude/skills/");
+  });
+
+  it("true : émet un SKILL.md par règle skillable cochée, frontmatter parseable, corps non vide", () => {
+    const files = buildConfig(makeAnswers({ rules: [...MIXED_RULES], rulesAsSkills: true }));
+    const paths = files.map((f) => f.path);
+    for (const id of ["memory-hygiene", "research-before-code", "audit-readonly"]) {
+      expect(paths, `skill manquant: ${id}`).toContain(`.claude/skills/${id}/SKILL.md`);
+    }
+    // exactement 3 skills (pas de core0 déporté)
+    expect(skillFiles(files).length).toBe(3);
+    for (const f of skillFiles(files)) {
+      assertParseableFrontmatter(f.content);
+    }
+    // le corps procédural complet vit dans le skill, plus dans CLAUDE.md
+    const skill = files.find((f) => f.path === ".claude/skills/memory-hygiene/SKILL.md")!.content;
+    expect(skill).toContain("200 premières lignes ou 25 Ko");
+    expect(skill).toContain("description: MEMORY.md concis");
+  });
+
+  it("true : core0 JAMAIS déporté (toujours inline, aucun skill core0)", () => {
+    const files = buildConfig(makeAnswers({ rules: [...RULE_IDS], rulesAsSkills: true }));
+    const skillPaths = skillFiles(files).map((f) => f.path);
+    // core0 : zero-improvisation, anti-vibe-coding, end-to-end, factual-no-flattery, context-alert
+    for (const core0 of [
+      "zero-improvisation",
+      "anti-vibe-coding",
+      "end-to-end",
+      "factual-no-flattery",
+      "context-alert",
+    ]) {
+      expect(skillPaths, `core0 déporté à tort: ${core0}`).not.toContain(
+        `.claude/skills/${core0}/SKILL.md`,
+      );
+    }
+    // zero-improvisation reste inline avec son heading dans CLAUDE.md
+    expect(claudeMdFiles(files)[0]!.content).toContain("### Zéro improvisation");
+  });
+
+  it("true : CLAUDE.md porte une ligne de référence par règle déportée, plafond respecté", () => {
+    const files = buildConfig(makeAnswers({ rules: [...MIXED_RULES], rulesAsSkills: true }));
+    const md = claudeMdFiles(files)[0]!.content;
+    expect(md).toContain("`.claude/skills/memory-hygiene/`");
+    expect(md).toContain("`.claude/skills/research-before-code/`");
+    expect(md).toContain("`.claude/skills/audit-readonly/`");
+    expect(md).toContain("chargée à la demande");
+    // le corps détaillé n'est PLUS inline
+    expect(md).not.toContain("200 premières lignes ou 25 Ko");
+    for (const m of claudeMdFiles(files)) {
+      expect(m.content.split("\n").length).toBeLessThanOrEqual(MAX_CLAUDE_MD_LINES);
+    }
+  });
+
+  it("true : CLAUDE.md plus court qu'en mode inline (cas dev/n0 non contraint par le plafond)", () => {
+    const inline = buildConfig(makeAnswers({ rules: [...MIXED_RULES], rulesAsSkills: false }));
+    const skilled = buildConfig(makeAnswers({ rules: [...MIXED_RULES], rulesAsSkills: true }));
+    const inlineLines = claudeMdFiles(inline)[0]!.content.split("\n").length;
+    const skilledLines = claudeMdFiles(skilled)[0]!.content.split("\n").length;
+    expect(skilledLines).toBeLessThan(inlineLines);
+  });
+
+  it("true : zéro fuite d'identité sur la nouvelle sortie (skills inclus)", () => {
+    const files = buildConfig(
+      makeAnswers({
+        rules: [...RULE_IDS],
+        rulesAsSkills: true,
+        author: "Alex",
+        org: "Acme",
+        companyId: "123456789",
+      }),
+    );
+    const text = allText(files).toLowerCase();
+    for (const token of FORBIDDEN_TOKENS) {
+      expect(text.includes(token.toLowerCase()), `fuite identite "${token}"`).toBe(false);
+    }
+  });
+
+  it("true + EN : description et ligne de référence en anglais", () => {
+    const files = buildConfig(
+      makeAnswers({ rules: [...MIXED_RULES], rulesAsSkills: true, language: "en" }),
+    );
+    const skill = files.find((f) => f.path === ".claude/skills/memory-hygiene/SKILL.md")!.content;
+    expect(skill).toContain("description: Concise MEMORY.md");
+    const md = claudeMdFiles(files)[0]!.content;
+    expect(md).toContain("detailed procedure in `.claude/skills/memory-hygiene/`");
+    expect(md).toContain("loaded on demand");
+    expect(md).not.toContain("chargée à la demande");
+  });
+
+  it("true : INSTALL.md et README.md mentionnent les skills déportés", () => {
+    const files = buildConfig(makeAnswers({ rules: [...MIXED_RULES], rulesAsSkills: true }));
+    const install = files.find((f) => f.path === "INSTALL.md")!.content;
+    const readme = files.find((f) => f.path === "README.md")!.content;
+    expect(install).toContain(".claude/skills/");
+    expect(readme.toLowerCase()).toContain("skills procéduraux");
   });
 });
