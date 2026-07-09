@@ -1,58 +1,52 @@
 import type { AdvancedSettings } from "../types";
 import { pick } from "../types";
+import { CHROME } from "../i18n/chrome";
 import { FIELD_HELP } from "../data/fieldHelp";
 import { SectionLabel } from "./primitives";
 import { OptionCard } from "./OptionCard";
 import { LearnMore } from "./LearnMore";
 import type { SectionProps } from "./sectionShared";
 
-const MODELS: { value: AdvancedSettings["model"]; label: string; sub: string }[] = [
-  { value: "", label: "Par défaut", sub: "Modèle courant de Claude Code" },
-  { value: "opus", label: "Opus", sub: "Le plus capable" },
-  { value: "sonnet", label: "Sonnet", sub: "Équilibre capacité/vitesse" },
-  { value: "haiku", label: "Haiku", sub: "Le plus rapide" },
-];
-
-const PERMS: { value: AdvancedSettings["permissionMode"]; label: string; sub: string }[] = [
-  { value: "", label: "Ne pas fixer", sub: "Comportement par défaut" },
-  { value: "default", label: "default", sub: "Demande à la 1re utilisation" },
-  { value: "acceptEdits", label: "acceptEdits", sub: "Auto-accepte les éditions" },
-  { value: "plan", label: "plan", sub: "Lecture seule stricte" },
-];
-
-const STYLES: { value: AdvancedSettings["outputStyle"]; label: string; sub: string }[] = [
-  { value: "", label: "Par défaut", sub: "Style standard" },
-  { value: "Explanatory", label: "Explanatory", sub: "Explications pédagogiques" },
-  { value: "Learning", label: "Learning", sub: "Exercices proposés" },
-];
-
-const MEMORY: { value: boolean; label: string; sub: string }[] = [
-  { value: true, label: "Activée", sub: "Mémoire inter-sessions (défaut)" },
-  { value: false, label: "Désactivée", sub: "Écrit autoMemoryEnabled: false" },
-];
-
-export function SettingsSection({ answers: a, setAnswers: setA }: SectionProps) {
+export function SettingsSection({ answers: a, setAnswers: setA, lang }: SectionProps) {
   const adv = a.advanced;
-  const lang = a.language;
+  const c = CHROME.settings;
   function patchAdv(patch: Partial<AdvancedSettings>): void {
     setA((prev) => ({ ...prev, advanced: { ...prev.advanced, ...patch } }));
   }
 
+  const models: { value: AdvancedSettings["model"]; label: string; sub: string }[] = [
+    { value: "", label: pick(c.modelDefault, lang), sub: pick(c.modelDefaultSub, lang) },
+    { value: "opus", label: "Opus", sub: pick(c.modelOpusSub, lang) },
+    { value: "sonnet", label: "Sonnet", sub: pick(c.modelSonnetSub, lang) },
+    { value: "haiku", label: "Haiku", sub: pick(c.modelHaikuSub, lang) },
+  ];
+
+  const perms: { value: AdvancedSettings["permissionMode"]; label: string; sub: string }[] = [
+    { value: "", label: pick(c.permNone, lang), sub: pick(c.permNoneSub, lang) },
+    { value: "default", label: "default", sub: pick(c.permDefaultSub, lang) },
+    { value: "acceptEdits", label: "acceptEdits", sub: pick(c.permAcceptSub, lang) },
+    { value: "plan", label: "plan", sub: pick(c.permPlanSub, lang) },
+  ];
+
+  const styles: { value: AdvancedSettings["outputStyle"]; label: string; sub: string }[] = [
+    { value: "", label: pick(c.styleDefault, lang), sub: pick(c.styleDefaultSub, lang) },
+    { value: "Explanatory", label: "Explanatory", sub: pick(c.styleExplanatorySub, lang) },
+    { value: "Learning", label: "Learning", sub: pick(c.styleLearningSub, lang) },
+  ];
+
+  const memory: { value: boolean; label: string; sub: string }[] = [
+    { value: true, label: pick(c.memoryOn, lang), sub: pick(c.memoryOnSub, lang) },
+    { value: false, label: pick(c.memoryOff, lang), sub: pick(c.memoryOffSub, lang) },
+  ];
+
   return (
     <div className="space-y-7">
-      <p className="text-xs leading-relaxed text-ink-400">
-        Réglages écrits dans <code className="text-clay-300">settings.json</code>. Chaque clé est
-        validée contre le schéma officiel ; une valeur laissée au défaut n'est pas écrite (fichier
-        minimal). Visibles en direct dans l'aperçu.
-      </p>
+      <p className="text-xs leading-relaxed text-ink-400">{pick(c.intro, lang)}</p>
 
       <section>
-        <SectionLabel
-          title="Modèle principal"
-          hint="Alias écrit dans settings.json. Par défaut, Claude Code garde son modèle courant."
-        />
+        <SectionLabel title={pick(c.modelTitle, lang)} hint={pick(c.modelHint, lang)} />
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-          {MODELS.map((m) => (
+          {models.map((m) => (
             <OptionCard
               key={m.value || "default"}
               title={m.label}
@@ -66,12 +60,9 @@ export function SettingsSection({ answers: a, setAnswers: setA }: SectionProps) 
       </section>
 
       <section>
-        <SectionLabel
-          title="Mode de permission par défaut"
-          hint="Limité aux valeurs sûres. plan = lecture seule ; acceptEdits = auto-accepte les éditions ; default = demande à la première utilisation."
-        />
+        <SectionLabel title={pick(c.permTitle, lang)} hint={pick(c.permHint, lang)} />
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-          {PERMS.map((p) => (
+          {perms.map((p) => (
             <OptionCard
               key={p.value || "none"}
               title={p.label}
@@ -85,12 +76,9 @@ export function SettingsSection({ answers: a, setAnswers: setA }: SectionProps) 
       </section>
 
       <section>
-        <SectionLabel
-          title="Style de sortie"
-          hint="Explanatory ajoute des explications pédagogiques ; Learning propose des exercices. Par défaut, style standard."
-        />
+        <SectionLabel title={pick(c.styleTitle, lang)} hint={pick(c.styleHint, lang)} />
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-          {STYLES.map((s) => (
+          {styles.map((s) => (
             <OptionCard
               key={s.value || "default"}
               title={s.label}
@@ -104,12 +92,9 @@ export function SettingsSection({ answers: a, setAnswers: setA }: SectionProps) 
       </section>
 
       <section>
-        <SectionLabel
-          title="Mémoire automatique"
-          hint="Mémoire inter-sessions (activée par défaut chez Claude Code). La désactiver écrit autoMemoryEnabled:false."
-        />
+        <SectionLabel title={pick(c.memoryTitle, lang)} hint={pick(c.memoryHint, lang)} />
         <div className="grid grid-cols-2 gap-2.5">
-          {MEMORY.map((m) => (
+          {memory.map((m) => (
             <OptionCard
               key={String(m.value)}
               title={m.label}

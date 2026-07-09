@@ -7,10 +7,10 @@ import {
   skillCategoriesInOrder,
 } from "../data/skills";
 import { SectionLabel, SelectableRow, Badge, ExternalLink, cn } from "./primitives";
+import { VerifiedBadge } from "./VerifiedBadge";
 import { toggle, type SectionProps } from "./sectionShared";
 
-export function SkillsSection({ answers: a, setAnswers: setA }: SectionProps) {
-  const lang = a.language;
+export function SkillsSection({ answers: a, setAnswers: setA, lang }: SectionProps) {
   const selected = a.skills;
 
   function toggleSkill(id: string): void {
@@ -62,6 +62,7 @@ export function SkillsSection({ answers: a, setAnswers: setA }: SectionProps) {
                           <code className="mt-0.5 block truncate text-[11px] text-ink-500">
                             {s.install}
                           </code>
+                          <VerifiedBadge verifiedAt={s.verifiedAt} lang={lang} />
                         </span>
                       </button>
                       <ExternalLink href={s.source}>src</ExternalLink>

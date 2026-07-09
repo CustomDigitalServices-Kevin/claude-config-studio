@@ -1,6 +1,12 @@
 import { useMemo, useState, type ComponentType, type Dispatch, type SetStateAction } from "react";
-import type { Answers } from "../types";
+import type { Answers, GeneratedFile, Language, Localized } from "../types";
+import { pick } from "../types";
+import { CHROME } from "../i18n/chrome";
 import { buildConfig } from "../generator/buildConfig";
+import { DownloadButton } from "./DownloadButton";
+import { GeneratorError } from "./GeneratorError";
+import { OptionCard } from "./OptionCard";
+import { PRESETS, applyPreset } from "../data/presets";
 import { Card } from "./primitives";
 import { Preview } from "./Preview";
 import { SectionNav, type NavItem } from "./SectionNav";
@@ -29,103 +35,45 @@ type SectionId =
   | "workflow"
   | "settings";
 
-interface Section extends NavItem {
+interface Section {
   id: SectionId;
-  title: string;
-  subtitle: string;
+  label: Localized;
+  title: Localized;
+  subtitle: Localized;
   Component: ComponentType<SectionProps>;
 }
 
 const SECTIONS: Section[] = [
-  {
-    id: "identity",
-    label: "Identité",
-    title: "Identité du projet",
-    subtitle: "Les informations de base de votre projet.",
-    Component: IdentitySection,
-  },
-  {
-    id: "profiles",
-    label: "Profils & structure",
-    title: "Profils & structure",
-    subtitle: "Choisissez les usages, la profondeur de l'arborescence et les secteurs.",
-    Component: ProfilesSection,
-  },
-  {
-    id: "preferences",
-    label: "Langue, rigueur & stack",
-    title: "Langue, rigueur & stack",
-    subtitle: "Langue des fichiers, niveau d'exigence et technologies.",
-    Component: PreferencesSection,
-  },
-  {
-    id: "guardrails",
-    label: "Garde-fous",
-    title: "Garde-fous (règles 0)",
-    subtitle: "Les non-négociables. Chaque règle a un détail et des paramètres ajustables.",
-    Component: GuardrailsSection,
-  },
-  {
-    id: "hooks",
-    label: "Hooks",
-    title: "Hooks (opt-in)",
-    subtitle: "Sensibles à l'OS et au shell. Limités aux hooks cross-platform surs.",
-    Component: HooksSection,
-  },
-  {
-    id: "tools",
-    label: "Outils tiers",
-    title: "Outils tiers à connecter",
-    subtitle:
-      "Boostez Claude Code. Le détail de chaque outil va dans TOOLS.md ; les serveurs MCP ont leur onglet dédié.",
-    Component: ToolsSection,
-  },
-  {
-    id: "skills",
-    label: "Skills",
-    title: "Skills à installer",
-    subtitle:
-      "Catalogue sourcé. La sélection ajoute la commande d'install dans INSTALL.md, sans générer de fichier.",
-    Component: SkillsSection,
-  },
-  {
-    id: "agents",
-    label: "Agents",
-    title: "Agents à installer",
-    subtitle:
-      "Catalogue sourcé de subagents. La sélection ajoute la commande d'install dans INSTALL.md, sans générer de fichier d'agent.",
-    Component: AgentsSection,
-  },
-  {
-    id: "workflow",
-    label: "Workflow",
-    title: "Workflow (posture de travail)",
-    subtitle: "Comportement par défaut face à une demande, sous-agent advisor et orchestration.",
-    Component: WorkflowSection,
-  },
-  {
-    id: "settings",
-    label: "Settings avancés",
-    title: "Settings avancés (settings.json)",
-    subtitle: "Réglages écrits dans settings.json, validés contre le schema officiel.",
-    Component: SettingsSection,
-  },
+  { id: "identity", ...CHROME.sections.identity, Component: IdentitySection },
+  { id: "profiles", ...CHROME.sections.profiles, Component: ProfilesSection },
+  { id: "preferences", ...CHROME.sections.preferences, Component: PreferencesSection },
+  { id: "guardrails", ...CHROME.sections.guardrails, Component: GuardrailsSection },
+  { id: "hooks", ...CHROME.sections.hooks, Component: HooksSection },
+  { id: "tools", ...CHROME.sections.tools, Component: ToolsSection },
+  { id: "skills", ...CHROME.sections.skills, Component: SkillsSection },
+  { id: "agents", ...CHROME.sections.agents, Component: AgentsSection },
+  { id: "workflow", ...CHROME.sections.workflow, Component: WorkflowSection },
+  { id: "settings", ...CHROME.sections.settings, Component: SettingsSection },
 ];
 
 export function GeneratorTab({
   answers,
   setAnswers,
+  lang,
 }: {
   answers: Answers;
   setAnswers: Dispatch<SetStateAction<Answers>>;
+  lang: Language;
 }) {
   const [activeSection, setActiveSection] = useState<SectionId>("identity");
+  const [appliedPreset, setAppliedPreset] = useState<string | null>(null);
 
-  const files = useMemo(() => {
+  const { files, error } = useMemo<{ files: GeneratedFile[]; error: Error | null }>(() => {
     try {
-      return buildConfig(answers);
-    } catch {
-      return [];
+      return { files: buildConfig(answers), error: null };
+    } catch (err) {
+      console.error("[buildConfig] generation du .claude echouee", err);
+      return { files: [], error: err instanceof Error ? err : new Error(String(err)) };
     }
   }, [answers]);
 
@@ -135,7 +83,7 @@ export function GeneratorTab({
   );
   const active = SECTIONS[activeIndex] ?? SECTIONS[0];
   const ActiveComponent = active.Component;
-  const navItems: NavItem[] = SECTIONS.map((s) => ({ id: s.id, label: s.label }));
+  const navItems: NavItem[] = SECTIONS.map((s) => ({ id: s.id, label: pick(s.label, lang) }));
 
   return (
     <div className="grid h-full min-h-0 grid-cols-1 lg:grid-cols-[208px_minmax(0,1fr)_minmax(0,1fr)]">
@@ -153,15 +101,64 @@ export function GeneratorTab({
 
       {/* Section active */}
       <div className="min-h-0 overflow-y-auto px-5 py-6">
-        <SectionShell index={activeIndex + 1} title={active.title} subtitle={active.subtitle}>
-          <ActiveComponent answers={answers} setAnswers={setAnswers} />
+        {/* Barre compacte de telechargement, visible seulement sous lg (la colonne preview
+            desktop est masquee en dessous de 1024px, donc le bouton du preview y est inaccessible). */}
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-ink-700 bg-ink-900 px-4 py-3 lg:hidden">
+          <span className="text-xs text-ink-400">
+            {files.length} {pick(CHROME.preview.files, lang)}
+          </span>
+          <DownloadButton
+            files={files}
+            projectName={answers.projectName}
+            lang={lang}
+            disabled={error !== null}
+          />
+        </div>
+        {error && (
+          <div className="mb-4 lg:hidden">
+            <GeneratorError error={error} lang={lang} />
+          </div>
+        )}
+
+        {/* Bloc "Depart rapide" : presets metier, en tete de la section Identite uniquement.
+            Pas une entree du rail (le test de comptage du rail ne doit pas le voir). */}
+        {activeSection === "identity" && (
+          <div className="mb-5">
+            <p className="text-sm font-semibold text-ink-200">{pick(CHROME.presets.title, lang)}</p>
+            <p className="mb-3 mt-1 text-xs leading-relaxed text-ink-400">
+              {pick(CHROME.presets.subtitle, lang)}
+            </p>
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+              {PRESETS.map((preset) => (
+                <OptionCard
+                  key={preset.id}
+                  title={pick(preset.name, lang)}
+                  subtitle={pick(preset.description, lang)}
+                  hue={preset.hue}
+                  selected={appliedPreset === preset.id}
+                  onClick={() => {
+                    setAnswers((prev) => applyPreset(prev, preset));
+                    setAppliedPreset(preset.id);
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <SectionShell
+          index={activeIndex + 1}
+          title={pick(active.title, lang)}
+          subtitle={pick(active.subtitle, lang)}
+        >
+          <ActiveComponent answers={answers} setAnswers={setAnswers} lang={lang} />
         </SectionShell>
       </div>
 
       {/* Preview */}
       <div className="hidden min-h-0 border-l border-ink-700 bg-ink-900 lg:block">
         <Card className="m-0 h-full rounded-none border-0">
-          <Preview files={files} projectName={answers.projectName} />
+          <Preview files={files} projectName={answers.projectName} lang={lang} error={error} />
         </Card>
       </div>
     </div>

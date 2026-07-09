@@ -3,7 +3,7 @@ import { GeneratorTab } from "./components/GeneratorTab";
 import { MarketplacesTab } from "./components/MarketplacesTab";
 import { McpServersTab } from "./components/McpServersTab";
 import { cn } from "./components/primitives";
-import { defaultRulesForProfile } from "./data/profiles";
+import { initialAnswers } from "./data/defaults";
 import type { Answers, Language } from "./types";
 
 type Tab = "generator" | "marketplaces" | "mcp";
@@ -20,46 +20,6 @@ const SUBTITLE: Record<Language, string> = {
   fr: "Générateur de configuration .claude + catalogue marketplaces et outils Claude Code",
   en: ".claude configuration generator + catalog of Claude Code marketplaces and tools",
 };
-
-function initialAnswers(): Answers {
-  return {
-    projectName: "mon-projet",
-    author: "",
-    org: "",
-    authorRole: "",
-    companyId: "",
-    responseStyle: "",
-    language: "fr",
-    profiles: ["dev"],
-    depth: "n0",
-    sectors: [],
-    stacks: ["web-ts"],
-    rules: defaultRulesForProfile("dev"),
-    rigor: "standard",
-    hooks: [],
-    tools: [],
-    skills: [],
-    agents: [],
-    mcpServers: [],
-    toolRules: [],
-    ruleOptions: {},
-    memoryNote: "",
-    advanced: {
-      model: "",
-      autoMemory: true,
-      outputStyle: "",
-      permissionMode: "",
-      fallbackModel: "",
-      responseLanguage: "",
-      attribution: "",
-    },
-    workflow: {
-      defaultBehavior: "act",
-      advisor: { enabled: false, model: "" },
-      orchestration: false,
-    },
-  };
-}
 
 export function App() {
   const [tab, setTab] = useState<Tab>("generator");
@@ -125,6 +85,11 @@ export function App() {
                 )}
               >
                 {TAB_LABELS[id][lang]}
+                {id === "mcp" && answers.mcpServers.length > 0 && (
+                  <span className="ml-1.5 rounded-full bg-clay-500/25 px-1.5 py-0.5 text-[10px] font-semibold text-clay-300">
+                    {answers.mcpServers.length}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
@@ -132,7 +97,9 @@ export function App() {
       </header>
 
       <main className="min-h-0 flex-1 overflow-hidden">
-        {tab === "generator" && <GeneratorTab answers={answers} setAnswers={setAnswers} />}
+        {tab === "generator" && (
+          <GeneratorTab answers={answers} setAnswers={setAnswers} lang={lang} />
+        )}
         {tab === "marketplaces" && (
           <div className="h-full overflow-y-auto">
             <MarketplacesTab lang={lang} profiles={answers.profiles} />
@@ -140,7 +107,7 @@ export function App() {
         )}
         {tab === "mcp" && (
           <div className="h-full overflow-y-auto">
-            <McpServersTab lang={lang} profiles={answers.profiles} />
+            <McpServersTab lang={lang} answers={answers} setAnswers={setAnswers} />
           </div>
         )}
       </main>

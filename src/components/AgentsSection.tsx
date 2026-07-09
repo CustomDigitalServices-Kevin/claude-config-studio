@@ -7,10 +7,10 @@ import {
   agentCategoriesInOrder,
 } from "../data/agents";
 import { SectionLabel, SelectableRow, Badge, ExternalLink, cn } from "./primitives";
+import { VerifiedBadge } from "./VerifiedBadge";
 import { toggle, type SectionProps } from "./sectionShared";
 
-export function AgentsSection({ answers: a, setAnswers: setA }: SectionProps) {
-  const lang = a.language;
+export function AgentsSection({ answers: a, setAnswers: setA, lang }: SectionProps) {
   const selected = a.agents;
 
   function toggleAgent(id: string): void {
@@ -62,6 +62,7 @@ export function AgentsSection({ answers: a, setAnswers: setA }: SectionProps) {
                           <code className="mt-0.5 block truncate text-[11px] text-ink-500">
                             {x.install}
                           </code>
+                          <VerifiedBadge verifiedAt={x.verifiedAt} lang={lang} />
                         </span>
                       </button>
                       <ExternalLink href={x.source}>src</ExternalLink>
