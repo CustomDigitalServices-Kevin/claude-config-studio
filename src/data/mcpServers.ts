@@ -704,3 +704,8 @@ export const MCP_SERVERS: readonly McpServer[] = [
     source: "https://github.com/eyaltoledano/claude-task-master",
   },
 ];
+
+/** Recherche une entree du catalogue MCP par son id (sortie .mcp.json opt-in). */
+export function mcpServerById(id: string): McpServer | undefined {
+  return MCP_SERVERS.find((s) => s.id === id);
+}

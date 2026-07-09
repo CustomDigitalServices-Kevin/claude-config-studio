@@ -72,9 +72,7 @@ function initStepsSection(a: Answers): string {
 /** Section 3 : héritage, fusion settings, taille. */
 function precedenceSection(a: Answers): string {
   const fr = a.language === "fr";
-  return [
-    `## 3. ${fr ? "Bon à savoir" : "Good to know"}`,
-    "",
+  const lines = [
     fr
       ? "- Héritage : Claude Code concatène tous les `CLAUDE.md` de votre dossier jusqu'à `~/.claude`, sans écrasement."
       : "- Inheritance: Claude Code concatenates every `CLAUDE.md` from your folder up to `~/.claude`, without overriding.",
@@ -84,7 +82,20 @@ function precedenceSection(a: Answers): string {
     fr
       ? "- Taille : gardez chaque `CLAUDE.md` sous ~200 lignes (au-delà, moins d'adhérence). Le procédural va dans `rules/` avec `paths:`."
       : "- Size: keep each `CLAUDE.md` under ~200 lines (beyond that, less adherence). Procedural content goes to `rules/` with `paths:`.",
-  ].join("\n");
+    // Prudence npx/npm : les catalogues (skills, agents, MCP locaux) pointent des paquets tiers a version flottante.
+    fr
+      ? "- Prudence `npx`/`npm` : relisez toute commande avant de l'exécuter ; les catalogues pointent des paquets tiers à version flottante."
+      : "- `npx`/`npm` caution: review any command before running it; the catalogs point to third-party packages at floating versions.",
+  ];
+  // Note .mcp.json : approbation requise a la premiere ouverture interactive (serveurs projet).
+  if (a.mcpServers.length > 0) {
+    lines.push(
+      fr
+        ? "- `.mcp.json` : les serveurs MCP fournis restent inactifs jusqu'à approbation ; Claude Code propose de les approuver à la première ouverture interactive."
+        : "- `.mcp.json`: the bundled MCP servers stay inactive until approved; Claude Code prompts to approve them at the first interactive launch.",
+    );
+  }
+  return [`## 3. ${fr ? "Bon à savoir" : "Good to know"}`, "", ...lines].join("\n");
 }
 
 /** Section 4 (optionnelle) : avertissement OS/shell sur les hooks cochés. Vide si aucun hook. */

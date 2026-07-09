@@ -3,6 +3,7 @@ import { pick } from "../types";
 import { RULE_MODULES, type RuleModule } from "../data/rules";
 import { hasProjectLayer, hasSectorLayer } from "../data/depths";
 import { sectorById } from "../data/sectors";
+import { mcpServerById } from "../data/mcpServers";
 import { generateSettings, settingsToJson } from "./settings";
 import { generateClaudeMd, generateRuleFile, type ClaudeMdVariant } from "./claudeMd";
 import { generateInitialize } from "./initialize";
@@ -193,6 +194,26 @@ export function buildConfig(a: Answers): GeneratedFile[] {
   const toolsDoc = generateToolsDoc(a);
   if (toolsDoc) {
     files.push({ path: "TOOLS.md", content: toolsDoc, lang: "markdown" });
+  }
+
+  // .mcp.json opt-in : format officiel {"mcpServers": {"<id>": <mcpJson>}} (code.claude.com/docs/en/mcp,
+  // vérifié 2026-07-09). On ne garde que les ids connus au mcpJson non vide (serveurs sans secret requis) ;
+  // les ids inconnus ou archivés (mcpJson vide) sont ignorés silencieusement.
+  if (a.mcpServers.length > 0) {
+    const mcpEntries: Record<string, unknown> = {};
+    for (const id of a.mcpServers) {
+      const server = mcpServerById(id);
+      if (server && server.mcpJson.trim().length > 0) {
+        mcpEntries[server.id] = JSON.parse(server.mcpJson) as unknown;
+      }
+    }
+    if (Object.keys(mcpEntries).length > 0) {
+      files.push({
+        path: ".mcp.json",
+        content: JSON.stringify({ mcpServers: mcpEntries }, null, 2) + "\n",
+        lang: "json",
+      });
+    }
   }
 
   // Docs racine

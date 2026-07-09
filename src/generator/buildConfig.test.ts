@@ -340,6 +340,43 @@ describe("buildConfig — outils selectionnes", () => {
   });
 });
 
+describe("buildConfig — .mcp.json opt-in", () => {
+  function mcpFile(files: GeneratedFile[]): GeneratedFile | undefined {
+    return files.find((f) => f.path === ".mcp.json");
+  }
+
+  it("emet un .mcp.json au format officiel, filtre l'id inconnu", () => {
+    const files = buildConfig(
+      makeAnswers({ mcpServers: ["github", "context7", "totally-unknown-id"] }),
+    );
+    const mcp = mcpFile(files);
+    expect(mcp).toBeDefined();
+    const parsed = JSON.parse(mcp!.content) as { mcpServers: Record<string, unknown> };
+    expect(Object.keys(parsed.mcpServers).sort()).toEqual(["context7", "github"]);
+    expect(parsed.mcpServers.github).toEqual({
+      type: "http",
+      url: "https://api.githubcopilot.com/mcp/",
+    });
+  });
+
+  it("filtre les serveurs sans mcpJson (archivés)", () => {
+    // sqlite a un mcpJson vide -> ignoré ; github valide -> gardé
+    const files = buildConfig(makeAnswers({ mcpServers: ["sqlite", "github"] }));
+    const parsed = JSON.parse(mcpFile(files)!.content) as { mcpServers: Record<string, unknown> };
+    expect(Object.keys(parsed.mcpServers)).toEqual(["github"]);
+  });
+
+  it("aucun .mcp.json quand la sélection MCP est vide", () => {
+    const files = buildConfig(makeAnswers({ mcpServers: [] }));
+    expect(mcpFile(files)).toBeUndefined();
+  });
+
+  it("aucun .mcp.json quand seuls des ids inconnus sont sélectionnés", () => {
+    const files = buildConfig(makeAnswers({ mcpServers: ["nope-1", "nope-2"] }));
+    expect(mcpFile(files)).toBeUndefined();
+  });
+});
+
 describe("buildConfig — profondeur (depth)", () => {
   it("n0 : une seule couche racine, ni secteur ni projet", () => {
     const files = buildConfig(makeAnswers({ depth: "n0", sectors: ["web", "infra"] }));
