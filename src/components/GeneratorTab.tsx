@@ -5,6 +5,8 @@ import { CHROME } from "../i18n/chrome";
 import { buildConfig } from "../generator/buildConfig";
 import { DownloadButton } from "./DownloadButton";
 import { GeneratorError } from "./GeneratorError";
+import { OptionCard } from "./OptionCard";
+import { PRESETS, applyPreset } from "../data/presets";
 import { Card } from "./primitives";
 import { Preview } from "./Preview";
 import { SectionNav, type NavItem } from "./SectionNav";
@@ -64,6 +66,7 @@ export function GeneratorTab({
   lang: Language;
 }) {
   const [activeSection, setActiveSection] = useState<SectionId>("identity");
+  const [appliedPreset, setAppliedPreset] = useState<string | null>(null);
 
   const { files, error } = useMemo<{ files: GeneratedFile[]; error: Error | null }>(() => {
     try {
@@ -114,6 +117,32 @@ export function GeneratorTab({
         {error && (
           <div className="mb-4 lg:hidden">
             <GeneratorError error={error} lang={lang} />
+          </div>
+        )}
+
+        {/* Bloc "Depart rapide" : presets metier, en tete de la section Identite uniquement.
+            Pas une entree du rail (le test de comptage du rail ne doit pas le voir). */}
+        {activeSection === "identity" && (
+          <div className="mb-5">
+            <p className="text-sm font-semibold text-ink-200">{pick(CHROME.presets.title, lang)}</p>
+            <p className="mb-3 mt-1 text-xs leading-relaxed text-ink-400">
+              {pick(CHROME.presets.subtitle, lang)}
+            </p>
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+              {PRESETS.map((preset) => (
+                <OptionCard
+                  key={preset.id}
+                  title={pick(preset.name, lang)}
+                  subtitle={pick(preset.description, lang)}
+                  hue={preset.hue}
+                  selected={appliedPreset === preset.id}
+                  onClick={() => {
+                    setAnswers((prev) => applyPreset(prev, preset));
+                    setAppliedPreset(preset.id);
+                  }}
+                />
+              ))}
+            </div>
           </div>
         )}
 
