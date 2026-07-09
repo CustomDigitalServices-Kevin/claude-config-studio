@@ -125,6 +125,11 @@ export function App() {
                 )}
               >
                 {TAB_LABELS[id][lang]}
+                {id === "mcp" && answers.mcpServers.length > 0 && (
+                  <span className="ml-1.5 rounded-full bg-clay-500/25 px-1.5 py-0.5 text-[10px] font-semibold text-clay-300">
+                    {answers.mcpServers.length}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
@@ -142,7 +147,7 @@ export function App() {
         )}
         {tab === "mcp" && (
           <div className="h-full overflow-y-auto">
-            <McpServersTab lang={lang} profiles={answers.profiles} />
+            <McpServersTab lang={lang} answers={answers} setAnswers={setAnswers} />
           </div>
         )}
       </main>
