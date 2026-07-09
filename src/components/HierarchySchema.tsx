@@ -1,10 +1,14 @@
 import type { ReactNode } from "react";
+import type { Language } from "../types";
+import { pick } from "../types";
+import { CHROME } from "../i18n/chrome";
 
 /**
  * Schema pedagogique STATIQUE (D24) : illustre la profondeur d'une arborescence .claude
  * sur 3 niveaux (Racine / Secteur / Projet). Conversion fidele du design
  * "Arborescence 3 Niveaux" (DesignSync a814a862), theme ambre dark. Contenu fixe et volontaire :
  * il explique le concept, il ne reflete pas la selection en cours (choix advisor 2026-07-01).
+ * Le CHROME (titres, descriptions, badges) suit le toggle header via `lang`.
  */
 
 const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
@@ -59,7 +63,7 @@ function Branch({ children, last }: { children: ReactNode; last?: boolean }) {
   );
 }
 
-function RootNode() {
+function RootNode({ lang }: { lang: Language }) {
   return (
     <div
       style={{
@@ -101,12 +105,12 @@ function RootNode() {
           <span
             style={{ fontWeight: 700, fontSize: 18, color: "#fbf5ec", letterSpacing: "-0.01em" }}
           >
-            Configuration racine
+            {pick(CHROME.hierarchy.rootTitle, lang)}
           </span>
-          <LevelBadge text="Niveau 0" tone="root" />
+          <LevelBadge text={pick(CHROME.hierarchy.level0, lang)} tone="root" />
         </div>
         <div style={{ fontSize: 12.5, color: "#b7ac9b", marginTop: 3 }}>
-          Le contenant global : règles transverses à tous les projets
+          {pick(CHROME.hierarchy.rootDesc, lang)}
         </div>
       </div>
     </div>
@@ -115,10 +119,12 @@ function RootNode() {
 
 function SectorNode({
   name,
+  lang,
   children,
   last,
 }: {
   name: string;
+  lang: Language;
   children: ReactNode;
   last?: boolean;
 }) {
@@ -167,10 +173,10 @@ function SectorNode({
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span style={{ fontWeight: 600, fontSize: 15.5, color: "#f2ebde" }}>{name}</span>
-            <LevelBadge text="Niveau 1" tone="sector" />
+            <LevelBadge text={pick(CHROME.hierarchy.level1, lang)} tone="sector" />
           </div>
           <div style={{ fontSize: 12, color: "#a49a89", marginTop: 2 }}>
-            Un secteur : regroupe les projets du meme domaine
+            {pick(CHROME.hierarchy.sectorDesc, lang)}
           </div>
         </div>
       </div>
@@ -189,7 +195,7 @@ function SectorNode({
   );
 }
 
-function ProjectNode({ name, last }: { name: string; last?: boolean }) {
+function ProjectNode({ name, lang, last }: { name: string; lang: Language; last?: boolean }) {
   return (
     <Branch last={last}>
       <div
@@ -233,7 +239,7 @@ function ProjectNode({ name, last }: { name: string; last?: boolean }) {
           </svg>
         </div>
         <span style={{ flex: 1, fontSize: 13.5, fontWeight: 500, color: "#d9d1c3" }}>{name}</span>
-        <LevelBadge text="Niveau 2" tone="project" />
+        <LevelBadge text={pick(CHROME.hierarchy.level2, lang)} tone="project" />
       </div>
     </Branch>
   );
@@ -268,7 +274,7 @@ function LegendRow({
   );
 }
 
-export function HierarchySchema() {
+export function HierarchySchema({ lang }: { lang: Language }) {
   return (
     <div
       style={{
@@ -290,7 +296,7 @@ export function HierarchySchema() {
             marginBottom: 10,
           }}
         >
-          Arborescence · 3 niveaux de profondeur
+          {pick(CHROME.hierarchy.eyebrow, lang)}
         </div>
         <div
           style={{
@@ -301,7 +307,7 @@ export function HierarchySchema() {
             letterSpacing: "-0.01em",
           }}
         >
-          Comprendre la profondeur d'un .claude
+          {pick(CHROME.hierarchy.title, lang)}
         </div>
         <p
           style={{
@@ -312,8 +318,7 @@ export function HierarchySchema() {
             color: "#a79f92",
           }}
         >
-          Chaque niveau descend d'un cran : le contenant global, puis le secteur, puis le projet
-          précis. Plus on descend, plus l'objet devient spécifique et hérite des niveaux au-dessus.
+          {pick(CHROME.hierarchy.intro, lang)}
         </p>
       </div>
 
@@ -335,7 +340,7 @@ export function HierarchySchema() {
             boxShadow: "0 30px 70px -40px rgba(0,0,0,0.7)",
           }}
         >
-          <RootNode />
+          <RootNode lang={lang} />
           <div
             style={{
               marginLeft: 22,
@@ -345,12 +350,12 @@ export function HierarchySchema() {
               paddingTop: 8,
             }}
           >
-            <SectorNode name="Web">
-              <ProjectNode name="portail-client" />
-              <ProjectNode name="site-vitrine" last />
+            <SectorNode name="Web" lang={lang}>
+              <ProjectNode name="portail-client" lang={lang} />
+              <ProjectNode name="site-vitrine" lang={lang} last />
             </SectorNode>
-            <SectorNode name="Data / ML" last>
-              <ProjectNode name="modele-churn" last />
+            <SectorNode name="Data / ML" lang={lang} last>
+              <ProjectNode name="modele-churn" lang={lang} last />
             </SectorNode>
           </div>
         </div>
@@ -374,12 +379,12 @@ export function HierarchySchema() {
               marginBottom: 8,
             }}
           >
-            Le rôle de chaque niveau
+            {pick(CHROME.hierarchy.legendTitle, lang)}
           </div>
           <LegendRow
-            title="Niveau 0 - Racine"
+            title={pick(CHROME.hierarchy.legend0Title, lang)}
             color="#f4b968"
-            desc="Le contenant global : un seul .claude qui porte les règles transverses."
+            desc={pick(CHROME.hierarchy.legend0Desc, lang)}
             swatch={
               <span
                 style={{
@@ -393,9 +398,9 @@ export function HierarchySchema() {
             }
           />
           <LegendRow
-            title="Niveau 1 - Secteur"
+            title={pick(CHROME.hierarchy.legend1Title, lang)}
             color="#e6c07a"
-            desc="Le domaine : il regroupe les projets qui se ressemblent (Web, Data...)."
+            desc={pick(CHROME.hierarchy.legend1Desc, lang)}
             swatch={
               <span
                 style={{
@@ -424,10 +429,10 @@ export function HierarchySchema() {
             </div>
             <div>
               <div style={{ fontWeight: 600, fontSize: 13, color: "#cfc7ba", marginBottom: 3 }}>
-                Niveau 2 - Projet
+                {pick(CHROME.hierarchy.legend2Title, lang)}
               </div>
               <div style={{ fontSize: 12, lineHeight: 1.5, color: "#a79f92" }}>
-                Le .claude precis d'un projet, au bout du chemin. Herite de tout au-dessus.
+                {pick(CHROME.hierarchy.legend2Desc, lang)}
               </div>
             </div>
           </div>

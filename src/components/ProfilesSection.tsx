@@ -1,4 +1,6 @@
 import type { ProfileId, SectorId } from "../types";
+import { pick } from "../types";
+import { CHROME } from "../i18n/chrome";
 import { PROFILES, defaultRulesForProfiles, recommendedStacksForProfiles } from "../data/profiles";
 import { DEPTH_OPTIONS, hasSectorLayer } from "../data/depths";
 import { SECTORS } from "../data/sectors";
@@ -15,7 +17,7 @@ import {
 } from "./icons";
 import { toggle, type SectionProps } from "./sectionShared";
 
-export function ProfilesSection({ answers: a, setAnswers: setA }: SectionProps) {
+export function ProfilesSection({ answers: a, setAnswers: setA, lang }: SectionProps) {
   function toggleProfile(p: ProfileId) {
     setA((prev) => {
       const profiles = toggle<ProfileId>(prev.profiles, p);
@@ -40,8 +42,8 @@ export function ProfilesSection({ answers: a, setAnswers: setA }: SectionProps) 
       <section>
         <div className="mb-3 flex items-end justify-between gap-3">
           <SectionLabel
-            title="Profils d'usage"
-            hint="Choisissez un ou plusieurs profils. Les garde-fous et postures se cumulent."
+            title={pick(CHROME.profiles.profilesTitle, lang)}
+            hint={pick(CHROME.profiles.profilesHint, lang)}
           />
           {a.profiles.length > 0 && (
             <span
@@ -55,7 +57,7 @@ export function ProfilesSection({ answers: a, setAnswers: setA }: SectionProps) 
                 {a.profiles.length}
               </span>
               <span className="text-[12px] font-semibold" style={{ color: "oklch(0.78 0.09 75)" }}>
-                sélectionné(s)
+                {pick(CHROME.common.selected, lang)}
               </span>
             </span>
           )}
@@ -68,8 +70,8 @@ export function ProfilesSection({ answers: a, setAnswers: setA }: SectionProps) 
               hue={PROFILE_HUE[p.id]}
               selected={a.profiles.includes(p.id)}
               onClick={() => toggleProfile(p.id)}
-              title={p.label.fr}
-              subtitle={p.tagline.fr}
+              title={pick(p.label, lang)}
+              subtitle={pick(p.tagline, lang)}
             />
           ))}
         </div>
@@ -77,8 +79,8 @@ export function ProfilesSection({ answers: a, setAnswers: setA }: SectionProps) 
 
       <section>
         <SectionLabel
-          title="Profondeur"
-          hint="Jusqu'où descend l'arborescence : racine seule, + secteurs, + projets."
+          title={pick(CHROME.profiles.depthTitle, lang)}
+          hint={pick(CHROME.profiles.depthHint, lang)}
         />
         <div className="grid grid-cols-1 gap-2.5">
           {DEPTH_OPTIONS.map((d) => (
@@ -88,8 +90,8 @@ export function ProfilesSection({ answers: a, setAnswers: setA }: SectionProps) 
               hue={DEPTH_HUE[d.id]}
               selected={a.depth === d.id}
               onClick={() => setA((prev) => ({ ...prev, depth: d.id }))}
-              title={`${d.label.fr} · ${d.level}`}
-              subtitle={d.summary.fr}
+              title={`${pick(d.label, lang)} · ${d.level}`}
+              subtitle={pick(d.summary, lang)}
             />
           ))}
         </div>
@@ -99,8 +101,8 @@ export function ProfilesSection({ answers: a, setAnswers: setA }: SectionProps) 
         <section>
           <div className="mb-3 flex items-end justify-between gap-3">
             <SectionLabel
-              title="Secteurs"
-              hint="Un dossier .claude (Niveau 1) est généré pour chaque secteur coché."
+              title={pick(CHROME.profiles.sectorsTitle, lang)}
+              hint={pick(CHROME.profiles.sectorsHint, lang)}
             />
             {a.sectors.length > 0 && (
               <span
@@ -120,7 +122,7 @@ export function ProfilesSection({ answers: a, setAnswers: setA }: SectionProps) 
                   className="text-[12px] font-semibold"
                   style={{ color: "oklch(0.78 0.09 75)" }}
                 >
-                  sélectionné(s)
+                  {pick(CHROME.common.selected, lang)}
                 </span>
               </span>
             )}
@@ -133,14 +135,14 @@ export function ProfilesSection({ answers: a, setAnswers: setA }: SectionProps) 
                 hue={SECTOR_HUE[s.id]}
                 selected={a.sectors.includes(s.id)}
                 onClick={() => toggleSector(s.id)}
-                title={s.label.fr}
-                subtitle={s.tagline.fr}
+                title={pick(s.label, lang)}
+                subtitle={pick(s.tagline, lang)}
               />
             ))}
           </div>
           {a.sectors.length === 0 && (
             <p className="mt-2 text-xs" style={{ color: "oklch(0.72 0.09 60)" }}>
-              Aucun secteur coché : seule la racine sera générée.
+              {pick(CHROME.profiles.sectorsEmpty, lang)}
             </p>
           )}
         </section>
@@ -148,10 +150,10 @@ export function ProfilesSection({ answers: a, setAnswers: setA }: SectionProps) 
 
       <section>
         <SectionLabel
-          title="Schema"
-          hint="Rappel visuel de ce que signifie la profondeur d'un .claude."
+          title={pick(CHROME.profiles.schemaTitle, lang)}
+          hint={pick(CHROME.profiles.schemaHint, lang)}
         />
-        <HierarchySchema />
+        <HierarchySchema lang={lang} />
       </section>
     </div>
   );

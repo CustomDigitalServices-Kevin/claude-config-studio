@@ -1,14 +1,24 @@
 import { useState } from "react";
-import type { GeneratedFile } from "../types";
+import type { GeneratedFile, Language } from "../types";
+import { pick } from "../types";
+import { CHROME } from "../i18n/chrome";
 import { downloadZip } from "../lib/zip";
 import { slugify } from "../generator/text";
 import { Badge, cn } from "./primitives";
 
-function langBadge(lang: GeneratedFile["lang"]): string {
-  return lang === "json" ? "json" : lang === "bash" ? "sh" : lang === "markdown" ? "md" : "txt";
+function fileKindBadge(kind: GeneratedFile["lang"]): string {
+  return kind === "json" ? "json" : kind === "bash" ? "sh" : kind === "markdown" ? "md" : "txt";
 }
 
-export function Preview({ files, projectName }: { files: GeneratedFile[]; projectName: string }) {
+export function Preview({
+  files,
+  projectName,
+  lang,
+}: {
+  files: GeneratedFile[];
+  projectName: string;
+  lang: Language;
+}) {
   const [selectedPath, setSelectedPath] = useState<string>(files[0]?.path ?? "");
   const [building, setBuilding] = useState(false);
 
@@ -35,12 +45,12 @@ export function Preview({ files, projectName }: { files: GeneratedFile[]; projec
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between gap-3 border-b border-ink-700 px-4 py-3">
         <div className="text-xs text-ink-400">
-          {files.length} fichiers
+          {files.length} {pick(CHROME.preview.files, lang)}
           {mdLines > 0 && (
             <>
               {" · "}CLAUDE.md{" "}
               <span className={cn(mdLines > 200 ? "text-amber-flag" : "text-moss-500")}>
-                {mdLines} lignes
+                {mdLines} {pick(CHROME.preview.lines, lang)}
               </span>
             </>
           )}
@@ -51,7 +61,7 @@ export function Preview({ files, projectName }: { files: GeneratedFile[]; projec
           disabled={building || files.length === 0}
           className="rounded-lg bg-clay-500 px-4 py-2 text-sm font-semibold text-ink-950 transition hover:bg-clay-400 disabled:opacity-50"
         >
-          {building ? "Génération..." : "Télécharger le .zip"}
+          {building ? pick(CHROME.preview.generating, lang) : pick(CHROME.preview.download, lang)}
         </button>
       </div>
 
@@ -69,7 +79,7 @@ export function Preview({ files, projectName }: { files: GeneratedFile[]; projec
                   : "text-ink-400 hover:bg-ink-800 hover:text-ink-200",
               )}
             >
-              <Badge tone={f.path === selected ? "clay" : "neutral"}>{langBadge(f.lang)}</Badge>
+              <Badge tone={f.path === selected ? "clay" : "neutral"}>{fileKindBadge(f.lang)}</Badge>
               <span className="truncate">{f.path}</span>
             </button>
           ))}

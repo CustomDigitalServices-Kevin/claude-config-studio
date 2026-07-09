@@ -1,10 +1,12 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { Answers } from "../types";
+import type { Answers, Language } from "../types";
 
 /** Signature commune a toutes les sections du generateur (etat remonte dans App). */
 export interface SectionProps {
   answers: Answers;
   setAnswers: Dispatch<SetStateAction<Answers>>;
+  /** Langue du CHROME (toggle header). Distincte de answers.language (langue de sortie). */
+  lang: Language;
 }
 
 /** Bascule l'appartenance d'une valeur a une liste (ajoute si absente, retire sinon). */

@@ -9,8 +9,7 @@ import {
 import { SectionLabel, SelectableRow, Badge, ExternalLink, cn } from "./primitives";
 import { toggle, type SectionProps } from "./sectionShared";
 
-export function SkillsSection({ answers: a, setAnswers: setA }: SectionProps) {
-  const lang = a.language;
+export function SkillsSection({ answers: a, setAnswers: setA, lang }: SectionProps) {
   const selected = a.skills;
 
   function toggleSkill(id: string): void {

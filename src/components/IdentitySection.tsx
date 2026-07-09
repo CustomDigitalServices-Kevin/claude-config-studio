@@ -1,5 +1,7 @@
 import { useState, type ReactNode } from "react";
-import type { Answers, ResponseStyle } from "../types";
+import type { Answers, Language, Localized, ResponseStyle } from "../types";
+import { pick } from "../types";
+import { CHROME } from "../i18n/chrome";
 import type { SectionProps } from "./sectionShared";
 import { OptionCard } from "./OptionCard";
 
@@ -92,10 +94,10 @@ function HashIcon() {
   );
 }
 
-const STYLE_OPTIONS: { value: ResponseStyle; label: string; sub: string }[] = [
-  { value: "", label: "Par défaut", sub: "Aucune directive de ton" },
-  { value: "concise", label: "Concis", sub: "Court et direct" },
-  { value: "detailed", label: "Détaillé", sub: "Explique le raisonnement" },
+const STYLE_OPTIONS: { value: ResponseStyle; label: Localized; sub: Localized }[] = [
+  { value: "", label: CHROME.identity.styleDefault, sub: CHROME.identity.styleDefaultSub },
+  { value: "concise", label: CHROME.identity.styleConcise, sub: CHROME.identity.styleConciseSub },
+  { value: "detailed", label: CHROME.identity.styleDetailed, sub: CHROME.identity.styleDetailedSub },
 ];
 
 function Field({
@@ -105,6 +107,7 @@ function Field({
   value,
   onChange,
   placeholder,
+  lang,
 }: {
   label: string;
   required?: boolean;
@@ -112,6 +115,7 @@ function Field({
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
+  lang: Language;
 }) {
   const [focused, setFocused] = useState(false);
   const filled = value.trim().length > 0;
@@ -141,7 +145,7 @@ function Field({
                 }
           }
         >
-          {required ? "Requis" : "Optionnel"}
+          {required ? pick(CHROME.common.required, lang) : pick(CHROME.common.optional, lang)}
         </span>
       </div>
       <div
@@ -196,7 +200,7 @@ function Field({
   );
 }
 
-export function IdentitySection({ answers, setAnswers }: SectionProps) {
+export function IdentitySection({ answers, setAnswers, lang }: SectionProps) {
   const a = answers;
   const [showAdvanced, setShowAdvanced] = useState(false);
   const set = (patch: Partial<Answers>): void => setAnswers((prev) => ({ ...prev, ...patch }));
@@ -205,31 +209,33 @@ export function IdentitySection({ answers, setAnswers }: SectionProps) {
       <div className="grid grid-cols-1 gap-x-[18px] gap-y-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <Field
-            label="Nom du dossier de travail"
+            label={pick(CHROME.identity.projectName, lang)}
             required
             icon={<CubeIcon />}
             value={a.projectName}
             onChange={(v) => set({ projectName: v })}
-            placeholder="mon-dossier"
+            placeholder={pick(CHROME.identity.projectNamePlaceholder, lang)}
+            lang={lang}
           />
           <p className="mt-1.5 text-xs leading-relaxed text-ink-500">
-            Le nom du dossier de travail (celui qui contient le dossier .claude). Sert d'identité
-            projet dans les fichiers générés.
+            {pick(CHROME.identity.projectHint, lang)}
           </p>
         </div>
         <Field
-          label="Auteur"
+          label={pick(CHROME.identity.author, lang)}
           icon={<UserIcon />}
           value={a.author}
           onChange={(v) => set({ author: v })}
-          placeholder="Votre nom"
+          placeholder={pick(CHROME.identity.authorPlaceholder, lang)}
+          lang={lang}
         />
         <Field
-          label="Organisation"
+          label={pick(CHROME.identity.org, lang)}
           icon={<BuildingIcon />}
           value={a.org}
           onChange={(v) => set({ org: v })}
-          placeholder="Votre organisation"
+          placeholder={pick(CHROME.identity.orgPlaceholder, lang)}
+          lang={lang}
         />
       </div>
 
@@ -238,25 +244,27 @@ export function IdentitySection({ answers, setAnswers }: SectionProps) {
         onClick={() => setShowAdvanced((s) => !s)}
         className="rounded px-2 py-1 text-xs font-semibold text-ink-400 transition-colors hover:text-clay-300"
       >
-        Options avancées {showAdvanced ? "▲" : "▼"}
+        {pick(CHROME.identity.advanced, lang)} {showAdvanced ? "▲" : "▼"}
       </button>
 
       {showAdvanced && (
         <div className="grid grid-cols-1 gap-x-[18px] gap-y-5 sm:grid-cols-2">
           <Field
-            label="Rôle / métier"
+            label={pick(CHROME.identity.role, lang)}
             icon={<BriefcaseIcon />}
             value={a.authorRole}
             onChange={(v) => set({ authorRole: v })}
-            placeholder="Ex : Freelance, Data engineer"
+            placeholder={pick(CHROME.identity.rolePlaceholder, lang)}
+            lang={lang}
           />
           {a.org.trim().length > 0 && (
             <Field
-              label="Numéro d'entreprise"
+              label={pick(CHROME.identity.companyId, lang)}
               icon={<HashIcon />}
               value={a.companyId}
               onChange={(v) => set({ companyId: v })}
-              placeholder="SIREN, TVA, EIN..."
+              placeholder={pick(CHROME.identity.companyIdPlaceholder, lang)}
+              lang={lang}
             />
           )}
           <div className="sm:col-span-2">
@@ -264,22 +272,21 @@ export function IdentitySection({ answers, setAnswers }: SectionProps) {
               className="mb-2 text-[12.5px] font-bold tracking-wide"
               style={{ color: "oklch(0.74 0.02 285)" }}
             >
-              Style de réponses
+              {pick(CHROME.identity.styleTitle, lang)}
             </p>
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
               {STYLE_OPTIONS.map((o) => (
                 <OptionCard
                   key={o.value || "default"}
-                  title={o.label}
-                  subtitle={o.sub}
+                  title={pick(o.label, lang)}
+                  subtitle={pick(o.sub, lang)}
                   selected={a.responseStyle === o.value}
                   onClick={() => set({ responseStyle: o.value })}
                 />
               ))}
             </div>
             <p className="mt-1.5 text-xs leading-relaxed text-ink-500">
-              Ton et longueur, injecté dans la posture du CLAUDE.md. Distinct du « Style de sortie »
-              des Settings (Explanatory/Learning).
+              {pick(CHROME.identity.styleHint, lang)}
             </p>
           </div>
         </div>

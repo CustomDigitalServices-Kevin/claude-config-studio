@@ -9,8 +9,7 @@ import {
 import { SectionLabel, SelectableRow, Badge, ExternalLink, cn } from "./primitives";
 import { toggle, type SectionProps } from "./sectionShared";
 
-export function AgentsSection({ answers: a, setAnswers: setA }: SectionProps) {
-  const lang = a.language;
+export function AgentsSection({ answers: a, setAnswers: setA, lang }: SectionProps) {
   const selected = a.agents;
 
   function toggleAgent(id: string): void {

@@ -132,7 +132,9 @@ export function App() {
       </header>
 
       <main className="min-h-0 flex-1 overflow-hidden">
-        {tab === "generator" && <GeneratorTab answers={answers} setAnswers={setAnswers} />}
+        {tab === "generator" && (
+          <GeneratorTab answers={answers} setAnswers={setAnswers} lang={lang} />
+        )}
         {tab === "marketplaces" && (
           <div className="h-full overflow-y-auto">
             <MarketplacesTab lang={lang} profiles={answers.profiles} />

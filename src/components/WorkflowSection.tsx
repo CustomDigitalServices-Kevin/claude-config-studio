@@ -1,13 +1,14 @@
 import type { WorkflowSettings } from "../types";
 import { pick } from "../types";
+import { CHROME } from "../i18n/chrome";
 import { SectionLabel } from "./primitives";
 import { OptionCard } from "./OptionCard";
 import { ADVISOR_MODEL_LABELS, BEHAVIOR_OPTIONS } from "../data/workflow";
 import type { SectionProps } from "./sectionShared";
 
-export function WorkflowSection({ answers: a, setAnswers: setA }: SectionProps) {
+export function WorkflowSection({ answers: a, setAnswers: setA, lang }: SectionProps) {
   const w = a.workflow;
-  const lang = a.language;
+  const c = CHROME.workflow;
   function patch(p: Partial<WorkflowSettings>): void {
     setA((prev) => ({ ...prev, workflow: { ...prev.workflow, ...p } }));
   }
@@ -15,17 +16,13 @@ export function WorkflowSection({ answers: a, setAnswers: setA }: SectionProps) 
   return (
     <div className="space-y-7">
       <p className="text-xs leading-relaxed text-ink-400">
-        La posture pilote le comportement de Claude Code face à une demande. L'advisor et
-        l'orchestration génèrent des fichiers dédiés (
+        {pick(c.intro, lang)} (
         <code className="text-clay-300">.claude/agents/advisor.md</code>,{" "}
         <code className="text-clay-300">.claude/commands/orchestrate.md</code>).
       </p>
 
       <section>
-        <SectionLabel
-          title="Comportement par défaut"
-          hint="Face à une demande : agir tout de suite, chercher la doc d'abord, ou brainstormer pour qualifier avant de commencer."
-        />
+        <SectionLabel title={pick(c.behaviorTitle, lang)} hint={pick(c.behaviorHint, lang)} />
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
           {BEHAVIOR_OPTIONS.map((b) => (
             <OptionCard
@@ -40,20 +37,17 @@ export function WorkflowSection({ answers: a, setAnswers: setA }: SectionProps) 
       </section>
 
       <section>
-        <SectionLabel
-          title="Sous-agent advisor"
-          hint="Génère un sous-agent de validation (go/no-go sourcé) + une directive : l'invoquer avant toute décision structurante."
-        />
+        <SectionLabel title={pick(c.advisorTitle, lang)} hint={pick(c.advisorHint, lang)} />
         <div className="grid grid-cols-2 gap-2.5">
           <OptionCard
-            title="Activé"
-            subtitle="Génère .claude/agents/advisor.md"
+            title={pick(c.advisorOn, lang)}
+            subtitle={pick(c.advisorOnSub, lang)}
             selected={w.advisor.enabled}
             onClick={() => patch({ advisor: { ...w.advisor, enabled: true } })}
           />
           <OptionCard
-            title="Désactivé"
-            subtitle="Aucun sous-agent généré"
+            title={pick(c.advisorOff, lang)}
+            subtitle={pick(c.advisorOffSub, lang)}
             selected={!w.advisor.enabled}
             onClick={() => patch({ advisor: { ...w.advisor, enabled: false } })}
           />
@@ -61,8 +55,8 @@ export function WorkflowSection({ answers: a, setAnswers: setA }: SectionProps) 
         {w.advisor.enabled && (
           <div className="mt-3">
             <SectionLabel
-              title="Modèle de l'advisor"
-              hint="Écrit dans le frontmatter de l'agent (clé model). Hériter = pas de clé, l'advisor prend le modèle courant."
+              title={pick(c.advisorModelTitle, lang)}
+              hint={pick(c.advisorModelHint, lang)}
             />
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               {ADVISOR_MODEL_LABELS.map((m) => (
@@ -81,19 +75,19 @@ export function WorkflowSection({ answers: a, setAnswers: setA }: SectionProps) 
 
       <section>
         <SectionLabel
-          title="Orchestration"
-          hint="Génère la commande /orchestrate : décompose une tâche complexe et délègue à des sous-agents parallèles."
+          title={pick(c.orchestrationTitle, lang)}
+          hint={pick(c.orchestrationHint, lang)}
         />
         <div className="grid grid-cols-2 gap-2.5">
           <OptionCard
-            title="Activée"
-            subtitle="Génère la commande /orchestrate"
+            title={pick(c.orchestrationOn, lang)}
+            subtitle={pick(c.orchestrationOnSub, lang)}
             selected={w.orchestration}
             onClick={() => patch({ orchestration: true })}
           />
           <OptionCard
-            title="Désactivée"
-            subtitle="Pas de commande générée"
+            title={pick(c.orchestrationOff, lang)}
+            subtitle={pick(c.orchestrationOffSub, lang)}
             selected={!w.orchestration}
             onClick={() => patch({ orchestration: false })}
           />
