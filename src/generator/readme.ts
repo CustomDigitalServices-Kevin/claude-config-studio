@@ -2,7 +2,7 @@ import type { Answers, GeneratedFile } from "../types";
 import { pick } from "../types";
 import { effectiveProfiles, profileById } from "../data/profiles";
 import { depthById } from "../data/depths";
-import { ruleById } from "../data/rules";
+import { ruleById, skilledRules } from "../data/rules";
 import { joinSections } from "./text";
 
 /** Génère le README.md racine de l'archive : récapitulatif lisible de la config. */
@@ -16,14 +16,23 @@ export function generateReadme(a: Answers, files: GeneratedFile[]): string {
 
   const title = `# ${a.projectName} - ${fr ? "configuration Claude Code" : "Claude Code configuration"}`;
 
-  const summary = [
+  const summaryLines = [
     `## ${fr ? "Résumé" : "Summary"}`,
     "",
     `- ${fr ? "Profils" : "Profiles"} : **${profileLabel}**`,
     `- ${fr ? "Profondeur" : "Depth"} : **${pick(depth.label, a.language)}** (${depth.level})`,
     `- ${fr ? "Langue" : "Language"} : ${a.language.toUpperCase()}`,
     `- ${fr ? "Rigueur" : "Rigor"} : ${a.rigor}`,
-  ].join("\n");
+  ];
+  const skilled = skilledRules(a);
+  if (skilled.length > 0) {
+    summaryLines.push(
+      fr
+        ? `- Skills procéduraux : ${skilled.length} garde-fou(s) déporté(s) dans \`.claude/skills/\` (chargés à la demande)`
+        : `- Procedural skills: ${skilled.length} guardrail(s) offloaded to \`.claude/skills/\` (loaded on demand)`,
+    );
+  }
+  const summary = summaryLines.join("\n");
 
   const rulesList = a.rules.map((id) => {
     const r = ruleById(id);
