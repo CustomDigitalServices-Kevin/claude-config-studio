@@ -98,3 +98,8 @@ The app language switches between French and English from the header.
 ## License
 
 MIT. See [LICENSE](./LICENSE).
+
+## About
+
+Built and maintained by [Kevin Tomas](https://www.custom-digital-services.com/?utm_source=github&utm_medium=readme&utm_campaign=claude-config-studio), freelance Power Platform and Microsoft AI consultant (Custom Digital Services).
+Try it online: [claude-config.custom-digital-services.fr](https://claude-config.custom-digital-services.fr?utm_source=github&utm_medium=readme&utm_campaign=claude-config-studio). More free tools: [www.custom-digital-services.com/outils](https://www.custom-digital-services.com/outils/?utm_source=github&utm_medium=readme&utm_campaign=claude-config-studio)
